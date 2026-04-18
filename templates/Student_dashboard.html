@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAttendance | Student Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Circular Progress Styling */
+
+        .cumulative-card {
+            background-color: #5350f6;
+            /* Precise purple from design */
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(83, 80, 246, 0.3);
+        }
+
+        .circle-box {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+        /* Circular Progress Animation */
+
+        svg {
+            transform: rotate(-90deg);
+        }
+
+        circle {
+            fill: none;
+            stroke-width: 12;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1.5s ease-in-out;
+            stroke-linecap: round;
+        }
+
+        .bg-ring {
+            stroke: #f1f5f9;
+            stroke-dashoffset: 0;
+        }
+        /* White ring for the cumulative card */
+
+        .white-ring-bg {
+            stroke: rgba(255, 255, 255, 0.2);
+            stroke-dashoffset: 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen">
+
+    <nav class="bg-white border-b border-gray-100 px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200">
+                <i class="fas fa-user-graduate text-white"></i>
+            </div>
+            <span class="text-xl font-extrabold text-slate-800 tracking-tight">SmartAttendance</span>
+        </div>
+        <div class="flex items-center space-x-6">
+            <div class="hidden md:flex flex-col text-right">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Academic Year</span>
+                <span class="text-sm font-bold text-slate-700">2025-26</span>
+            </div>
+            <button onclick="logout()" class="bg-red-50 text-red-600 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-red-100 transition-all active:scale-95">Logout</button>
+
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 lg:p-10">
+
+        <div id="dashboard-page" class="fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 ">
+                <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex items-center justify-between ">
+                    <div class="flex items-center space-x-6 ">
+                        <div class="relative">
+                            <div id="avatar-initials" class="w-24 h-24 rounded-3xl shadow-xl border-4 border-white bg-indigo-600 flex items-center justify-center text-white text-3xl font-black">
+                            </div>
+                            <div class="absolute -top-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-4 border-white "></div>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Welcome, John Doe</h1>
+                            <p class="text-slate-500 font-medium mt-1">Reg: <span class="text-indigo-600 font-bold">2026CS401</span></p>
+                            <div class="mt-3 flex space-x-2">
+                                <span class="bg-indigo-50 text-indigo-700 text-[10px] px-3 py-1 rounded-lg font-extrabold uppercase tracking-wider">B.E CSE</span>
+                                <span class="bg-slate-100 text-slate-600 text-[10px] px-3 py-1 rounded-lg font-extrabold uppercase tracking-wider">Semester VI</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cumulative-card p-8 flex flex-col items-center justify-center text-white relative overflow-hidden">
+                    <div class="relative inline-flex items-center justify-center">
+                        <svg class="w-36 h-36">
+                            <circle class="white-ring-bg" stroke="white" stroke-width="10" fill="transparent" r="60" cx="72" cy="72"/>
+                            <circle id="cumulative-ring" stroke="white " stroke-width="10" stroke-dasharray="377 " stroke-dashoffset="377 " stroke-linecap="round " fill="transparent " r="60 " cx="72 " cy="72 "/>
+                        </svg>
+                        <span id="cumulative-text" class="absolute text-4xl font-black italic tracking-tighter inset-0 flex items-center justify-center text-center color-white">0%</span>
+                    </div>
+                    <p class="mt-6 font-black tracking-[0.2em] uppercase text-[10px] text-white opacity-90 text-center">Cumulative Presence</p>
+                </div>
+
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-7 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="font-bold text-slate-800">Monthly Performance Trends</h3>
+                        <span class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-bold uppercase">Line Analysis</span>
+                    </div>
+                    <div style="height: 300px;"><canvas id="trendChart"></canvas></div>
+                </div>
+
+                <div class="lg:col-span-5 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800">Subject Wise Analysis</h3>
+                        <i class="fas fa-bullseye text-indigo-200 "></i>
+                    </div>
+                    <div class="flex items-center justify-center" style="height: 300px;">
+                        <canvas id="radarChart"></canvas></div>
+                    <p class=" mt-4 text-[10px] text-center italic text-slate-400 font-semibold uppercase tracking-wider">
+                        <i class="fas fa-mouse-pointer mr-1"></i> Click points to view details
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="detail-page" class="max-w-6xl mx-auto p-6 hidden fade-in">
+            <button onclick="showDashboard()" class="mb-8 flex items-center text-indigo-600 font-bold hover:translate-x-[-4px] transition-transform group">
+                <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center mr-3 group-hover:bg-indigo-600 group-hover:text-white transition-color">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </div>
+                Back to Dashboard
+            </button>
+
+            <div class="bg-white rounded-[3rem] p-10 shadow-xl border border-slate-50">
+                <div class="flex flex-col lg:flex-row justify-between items-center gap-12">
+                    <div class="flex-1 w-full text-center lg:text-left">
+                        <h2 id="det-subject-name" class="text-5xl font-black text-slate-900 tracking-tighter italic">Subject Name</h2>
+                        <div class="mt-4 flex flex-wrap gap-3 justify-center lg:justify-start">
+                            <span class="bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-xl text-xs font-bold border border-emerald-100">Theory + Lab</span>
+                            <span id="prof-name" class="bg-slate-50 text-slate-500 px-4 py-1.5 rounded-xl text-xs font-bold border border-slate-100">
+                            </span> </div>
+
+                        <div id="low-attendance-alert" class="mt-8 p-5 bg-red-50 border-l-4 border-red-500 rounded-r-xl hidden">
+                            <div class="flex items-center text-red-700">
+                                <i class="fas fa-exclamation-triangle text-2xl mr-4"></i>
+                                <div>
+                                    <p class="font-bold">Shortage of Attendance!</p>
+                                    <p class="text-sm">Current percentage is below 75% . Medical/Special approval may be needed.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-8 sm:gap-12 justify-center w-full lg:w-auto">
+                        <div class="text-center">
+                            <div class="circle-box">
+                                <svg width="160" height="160"><circle class="bg-ring" cx="80" cy="80" r="70"/><circle id="present-ring" cx="80" cy="80" r="70" stroke="#10b981"/></svg>
+                                <div class="absolute inset-0 flex items-center justify-center font-black text-2xl text-slate-800" id="present-text">0%</div>
+                            </div>
+                            <p class="mt-4 font-bold text-emerald-600 uppercase text-[10px] tracking-widest"> Present Status</p>
+                        </div>
+
+                        <div class="text-center cursor-pointer group" onclick="toggleAbsentTable()">
+                            <div class="circle-box transition group-hover:scale-105">
+                                <svg width="160" height="160"><circle class="bg-ring" cx="80" cy="80" r="70"/><circle id="absent-ring" cx="80" cy="80" r="70" stroke="#ef4444"/></svg>
+                                <div class="absolute inset-0 flex items-center justify-center font-black text-2xl text-slate-800" id="absent-text">0%</div>
+                            </div>
+                            <p class="mt-4 font-bold text-red-500 uppercase text-[10px] tracking-widest underline underline-offset-4">View History</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="absent-table-container" class="mt-16 hidden pt-10 border-t border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6">
+                        <i class="fas fa-list-ul mr-3 h-8 text-red-400"></i> Absentee Logs
+                    </h3>
+                    <div class="overflow-x-auto rounded-2xl border border-slate-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                                <tr>
+                                    <th class="p-5 ">S.No</th>
+                                    <th class="p-5">Date</th>
+                                    <th class="p-5">Day</th>
+                                    <th class="p-5">Session</th>
+                                    <th class="p-5">Session Type</th>
+                                    <th class="p-5">Hours</th>
+                                    <th class="p-5">Time Slot</th>
+                                    <th class="p-5">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm font-semibold text-slate-600 divide-y divide-slate-50">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        // ✅ GLOBAL VARIABLES (IMPORTANT)
+        let subjectIds = [];
+        let subjectNames = [];
+        let percentages = [];
+        let professors = [];
+
+        window.onload = function() {
+
+            fetch('/dashboard-data')
+                .then(res => res.json())
+                .then(data => {
+
+                    // ✅ Student Info
+                    document.querySelector("h1").innerText =
+                        "Welcome, " + data.student.name;
+                    // ✅ Set Avatar Initials
+                    document.getElementById("avatar-initials").innerText =
+                        getInitials(data.student.name);
+
+                    document.querySelector("p span").innerText =
+                        data.student.student_id;
+
+                    // ✅ SUBJECT DATA (STORE GLOBALLY)
+                    const subjects = data.subjects;
+
+                    subjectIds = subjects.map(s => s.subject_id);
+                    subjectNames = subjects.map(s => s.subject_name);
+                    percentages = subjects.map(s => s.percentage || 0);
+                    professors = subjects.map(s => s.faculty_name || "Not Assigned");
+
+                    console.log("Subjects:", subjects);
+                    console.log("IDs:", subjectIds);
+                    console.log("Professors:", professors);
+
+                    // ✅ MONTH DATA
+                    const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                        "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+                    ];
+
+                    const months = data.monthly.map(m => monthNames[m.month - 1]);
+                    const monthPercent = data.monthly.map(m => m.percentage || 0);
+
+                    // ✅ CUMULATIVE
+                    let total = data.cumulative || 0;
+                    updateCircle('cumulative-ring', 'cumulative-text', Math.round(total), 377);
+
+                    // ✅ LINE CHART
+                    new Chart(document.getElementById('trendChart'), {
+                        type: 'line',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: 'Month%',
+                                data: monthPercent,
+                                borderColor: '#6366f1',
+                                fill: true
+                            }]
+                        }
+                    });
+
+                    // ✅ RADAR CHART
+                    new Chart(document.getElementById('radarChart'), {
+                        type: 'radar',
+                        data: {
+                            labels: subjectNames,
+                            datasets: [{
+                                label: "Attendance",
+                                data: percentages,
+                                pointBackgroundColor: percentages.map(p => p < 75 ? '#ef4444' : '#6366f1'),
+                                pointBorderColor: percentages.map(p => p < 75 ? '#ef4444' : '#6366f1'),
+                                borderColor: '#6366f1',
+                                backgroundColor: 'rgba(99,102,241,0.2)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+
+                            // ✅ CLICK EVENT FIXED
+                            onClick: (evt, elements) => {
+                                if (elements.length > 0) {
+                                    const index = elements[0].index;
+
+                                    const subjectId = subjectIds[index];
+                                    const subjectName = subjectNames[index];
+                                    const percentage = percentages[index];
+
+                                    console.log("CLICKED:", subjectId, subjectName);
+
+                                    showDetailPage(subjectId, subjectName, percentage);
+                                }
+                            },
+
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    align: 'center'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let val = context.raw;
+                                            return val < 75 ?
+                                                `⚠ ${val}% (Low Attendance)` :
+                                                `${val}%`;
+                                        }
+                                    }
+                                }
+                            },
+
+                            scales: {
+                                r: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+
+                });
+        };
+
+        // ✅ DETAIL PAGE FUNCTION
+        function showDetailPage(id, name, percentage) {
+
+            if (!id) {
+                console.error("Subject ID is undefined ❌");
+                return;
+            }
+
+            const index = subjectIds.indexOf(id);
+            const professor = professors[index];
+
+            console.log("INDEX:", index);
+            console.log("PROFESSOR:", professor);
+
+            // ✅ SHOW/HIDE PAGES
+            document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById('detail-page').classList.remove('hidden');
+
+            // ✅ SUBJECT NAME
+            document.getElementById('det-subject-name').innerText = name;
+
+            // ✅ PROFESSOR NAME (FIXED)
+            document.getElementById('prof-name').innerText =
+                professor || "Not Assigned";
+
+            // ✅ ALERT
+            const alert = document.getElementById('low-attendance-alert');
+            percentage < 75 ?
+                alert.classList.remove('hidden') :
+                alert.classList.add('hidden');
+
+            // ✅ COLOR CHANGE
+            const presentText = document.getElementById('present-text');
+            percentage < 75 ?
+                presentText.classList.add('text-red-500') :
+                presentText.classList.remove('text-red-500');
+
+            // ✅ CIRCLES
+            updateCircle('present-ring', 'present-text', percentage, 440);
+            updateCircle('absent-ring', 'absent-text', 100 - percentage, 440);
+
+            // ✅ FETCH ABSENT DATA
+            fetch(`/absent-history?subject_id=${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log("ABSENT DATA:", data);
+                    loadAbsentTable(data);
+                });
+        }
+
+        function getInitials(name) {
+            if (!name) return "";
+
+            const words = name.trim().split(" ");
+
+            if (words.length === 1) {
+                return words[0][0].toUpperCase();
+            }
+
+            return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+        }
+        // ✅ TABLE LOAD
+        function loadAbsentTable(data) {
+
+            const tbody = document.querySelector("#absent-table-container tbody");
+            tbody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center p-5 text-gray-400">
+                        No absent records found
+                    </td>
+                </tr>`;
+                return;
+            }
+
+            data.forEach((row, index) => {
+
+                const formattedDate = new Date(row.date).toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                });
+
+                tbody.innerHTML += `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-5 font-bold">${index + 1}</td>
+                    <td class="p-5">${formattedDate}</td>
+                    <td class="p-5">${row.day}</td>
+                    <td class="p-5">${row.session || '-'}</td>
+                    <td class="p-5">${row.session_type || '-'}</td>
+                    <td class="p-5">${row.hours || '-'}</td>
+                    <td class="p-5">${row.time_slot || '-'}</td>
+                    <td class="p-5 text-red-500">${row.status}</td>
+                </tr>`;
+            });
+        }
+
+        function showDashboard() {
+            document.getElementById('detail-page').classList.add('hidden');
+            document.getElementById('dashboard-page').classList.remove('hidden');
+        }
+
+        function updateCircle(id, textId, value, circumference) {
+
+            value = Math.max(0, Math.min(100, value));
+
+            const circle = document.getElementById(id);
+            const text = document.getElementById(textId);
+
+            circle.style.strokeDasharray = circumference;
+
+            const offset = circumference - (value / 100 * circumference);
+
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 50);
+
+            let current = 0;
+            const step = value / 50;
+
+            const timer = setInterval(() => {
+                current += step;
+
+                if (current >= value) {
+                    current = value;
+                    clearInterval(timer);
+                }
+
+                text.innerText = current.toFixed(1) + '%';
+            }, 20);
+        }
+
+        function toggleAbsentTable() {
+            const container = document.getElementById('absent-table-container');
+            container.classList.toggle('hidden');
+        }
+
+        function logout() {
+            window.location.href = "/logout";
+        }
+    </script>
+
+</body>
+
+</html>

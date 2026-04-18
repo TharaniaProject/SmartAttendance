@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAttendance | Faculty Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fcfdfe;
+            color: #1e293b;
+        }
+        /* Sidebar Styling */
+
+        .sidebar-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .sidebar-item.active {
+            background-color: #eef2ff;
+            color: #4f46e5;
+            border-right: 4px solid #4f46e5;
+        }
+
+        .logo-box {
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+        }
+        /* Card & UI Containers */
+
+        .glass-card {
+            background: white;
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f5f9;
+        }
+        /* Stats circles from Student Details view */
+
+        .stat-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
+        }
+        /* Blue Clock Widget from Dashboard view */
+
+        .clock-widget {
+            background: #2563eb;
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.2);
+        }
+        /* Status badges in table */
+
+        .status-badge {
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .status-absent {
+            background-color: #fff1f2;
+            color: #e11d48;
+            border: none;
+            outline: none;
+        }
+
+        .status-present {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            border: none;
+            outline: none;
+        }
+        /* Smart Scan area */
+
+        .scan-area {
+            background-color: #ffffff;
+            border-radius: 2rem;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            /* NEW STYLE */
+            border: 2px dashed #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .scan-area::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #2563eb;
+            top: 0;
+            left: 0;
+            animation: scanLine 2s linear infinite;
+        }
+
+        @keyframes scanLine {
+            0% {
+                top: 0;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+        /* Calendar grid styles */
+
+        .calendar-day {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .calendar-day.active {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .calendar-day.other-month {
+            color: #cbd5e1;
+        }
+
+        .progress-circle {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: transparent;
+            stroke-width: 10;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-ring .progress {
+            stroke: white;
+            stroke-linecap: round;
+            stroke-dasharray: 377;
+            /* 2πr (2 * 3.14 * 60) */
+            stroke-dashoffset: 377;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+
+        .progress-text span {
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .progress-text p {
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        .image-box {
+            width: 100%;
+            height: 100%;
+            border-radius: 2rem;
+            overflow: hidden;
+            border: 3px solid transparent;
+            transition: 0.4s ease;
+        }
+        /* 🟢 AFTER SUCCESS */
+
+        .image-success {
+            border: 4px solid #22c55e;
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
+        }
+
+        .calendar-day.selected {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .scan-area.scan-stopped::after {
+            animation: none !important;
+            display: none;
+            /* hides the scanning line */
+        }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <aside class="w-72 bg-white border-r border-slate-100 flex flex-col py-8 sticky top-0 h-screen">
+        <div class="px-8 flex items-center gap-3 mb-16">
+            <div class="logo-box w-12 h-12 bg-indigo-600 p-2.5 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-graduation-cap text-white text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-black tracking-tighter text-slate-800">SmartAttendance</h1>
+        </div>
+
+        <nav class="flex-1 space-y-2 px-4">
+            <div onclick="switchView('dashboard')" id="nav-dashboard" class="sidebar-item active p-4 rounded-2xl flex items-center gap-4 font-bold text-slate-400">
+                <i class="fas fa-grid-2"></i> Dashboard
+            </div>
+            <div onclick="switchView('students')" id="nav-students" class="sidebar-item p-4 rounded-2xl flex items-center gap-4 font-bold text-slate-400">
+                <i class="fas fa-user-friends"></i> My Students
+            </div>
+            <div onclick="switchView('console')" id="nav-console" class="sidebar-item p-4 rounded-2xl flex items-center gap-4 font-bold text-slate-400">
+                <i class="fas fa-clipboard-check"></i> Mark Attendance
+            </div>
+            <div onclick="switchView('reports')" id="nav-reports" class="sidebar-item p-4 rounded-2xl flex items-center gap-4 font-bold text-slate-400">
+                <i class="fas fa-chart-pie"></i> Reports
+            </div>
+        </nav>
+
+        <div class="px-8 mt-auto pt-8">
+            <button onclick="logout()" class="text-rose-500 font-bold flex items-center gap-3 hover:gap-4 transition-all">
+                <i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-12 overflow-y-auto">
+
+        <div id="view-dashboard">
+            <header class="flex justify-between items-start mb-12">
+                <div>
+                    <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2">Faculty Dashboard</h2>
+                    <p class="text-slate-400 font-semibold text-sm">Welcome back,{{ faculty.name }}</p>
+                </div>
+                <div class="clock-widget">
+                    <div class="text-right">
+                        <p class="text-[10px] font-black uppercase tracking-widest opacity-70">Saturday, April 4</p>
+                        <p id="live-clock" class="text-3xl font-black tabular-nums">17:40:55</p>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-2xl"><i class="fas fa-clock text-xl"></i></div>
+                </div>
+            </header>
+            <div class="glass-card p-8 mt-8">
+
+                <h3 class="text-xl font-black mb-6">Select Course & Subjects</h3>
+
+                <!-- Course Selection -->
+                <div class="flex gap-6 mb-6">
+                    <label class="flex items-center gap-2 font-bold">
+            <input type="radio" name="course" value="B.E" onchange="autoloadSubjects()"> B.E
+        </label>
+                    <label class="flex items-center gap-2 font-bold">
+            <input type="radio" name="course" value="BTECH" onchange="autoloadSubjects()"> B.Tech
+        </label>
+                </div>
+
+                <!-- Year & Semester -->
+                <div class="flex gap-6 mb-6">
+                    <select id="year" onchange="autoloadSubjects()" class="px-4 py-2 rounded-xl border">
+            <option value="">Select Year</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+        </select>
+
+                    <select id="semester" onchange="autoloadSubjects()" class="px-4 py-2 rounded-xl border">
+            <option value="">Select Semester</option>
+            <option value="1">Sem 1</option>
+            <option value="2">Sem 2</option>
+            <option value="3">Sem 3</option>
+            <option value="4">Sem 4</option>
+            <option value="5">Sem 5</option>
+            <option value="6">Sem 6</option>
+            <option value="7">Sem 7</option>
+            <option value="8">Sem 8</option>
+        </select>
+                    <select id="day" onchange="autoloadSubjects()" class="px-4 py-2 rounded-xl border">
+            <option value="">Select Day</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+
+        </select>
+
+                </div>
+
+                <!-- Search -->
+
+                <!-- Subject List -->
+                <div id="subject-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+            </div>
+            <div class="grid grid-cols-12 gap-8">
+                <div class="col-span-12 lg:col-span-4 glass-card p-8">
+                    <div class="flex justify-between items-start mb-10">
+                        <div class="bg-indigo-50 p-3 rounded-xl text-indigo-600"><i class="fas fa-book-open"></i></div>
+                        <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Today's Class</span>
+                    </div>
+                    <h3 class="text-3xl font-black text-slate-800 mb-1">Advanced AI</h3>
+                    <p class="text-slate-400 font-bold text-xs uppercase mb-8">CS-402 • 02:00 PM</p>
+                    <button onclick="prepareAttendance('${sub.subject_id}', '${sub.subject_name}', '${sub.subject_code}')" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black">
+    Mark Attendance
+</button>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 glass-card p-8">
+                    <div class="flex justify-between items-start mb-10">
+                        <div class="bg-indigo-50 p-3 rounded-xl text-indigo-600"><i class="fas fa-user-check"></i></div>
+                        <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Overall Presence</span>
+                    </div>
+                    <h3 class="text-5xl font-black text-slate-800">92%</h3>
+                    <p class="text-slate-400 font-bold text-[10px] uppercase mt-2 tracking-widest">Student Engagement</p>
+                    <div class="w-full bg-slate-100 h-2 rounded-full mt-6 overflow-hidden">
+                        <div class="bg-indigo-500 h-full w-[92%]"></div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 glass-card p-8">
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <h4 class="font-black text-slate-800 tracking-tight">Schedule</h4>
+                        <div class="flex gap-2">
+                            <button class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 text-xs hover:text-indigo-600"><i class="fas fa-chevron-left"></i></button>
+                            <button class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 text-xs hover:text-indigo-600"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-slate-300 uppercase mb-4">
+                        <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-y-2 justify-items-center text-slate-600">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-students" class="hidden">
+            <header class="flex justify-between items-start mb-12">
+                <div>
+                    <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2">Student Attendance Details</h2>
+                    <p class="text-indigo-600 font-extrabold text-sm uppercase tracking-widest">
+                        Saturday, 04 April 2026 <span class="mx-2 text-slate-300">•</span> Hour: 03 (Evening Session)
+                    </p>
+                </div>
+                <div class="flex gap-6">
+                    <div class="stat-circle bg-white text-emerald-500 border border-slate-50">
+                        <span class="text-[10px] font-black uppercase tracking-tighter">Present</span>
+                        <span id="p-count" class="text-2xl font-black">0</span>
+                    </div>
+                    <div class="stat-circle bg-white text-rose-500 border border-slate-50">
+                        <span class="text-[10px] font-black uppercase tracking-tighter">Absent</span>
+                        <span id="a-count" class="text-2xl font-black tabular-nums">4</span>
+                    </div>
+                    <div class="stat-circle bg-indigo-600 text-white shadow-indigo-200">
+                        <span class="text-[10px] font-black uppercase tracking-tighter">Rate</span>
+                        <span id="rate-percent" class="text-2xl font-black">0%</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="glass-card p-10">
+                <div class="flex justify-between items-center mb-10 border-b border-slate-50 pb-6">
+                    <h3 class="text-5xl font-black italic text-slate-800">Student Roll & Status</h3>
+                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Manual Overrides Allowed</span>
+                </div>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-[25px] font-black text-slate-300 uppercase tracking-widest border-b border-slate-50">
+                            <th class="pb-6">Roll No</th>
+                            <th class="pb-6">Student Name</th>
+                            <th class="pb-6">Contact</th>
+                            <th class="pb-6">Status</th>
+                            <th class="pb-6">Manual Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-list-body" class="text-slate-900 font-bold">
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="saveAttendanceChanges()" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">
+    Save Changes
+</button>
+        </div>
+
+        <div id="view-console" class="hidden">
+            <header class="mb-10">
+                <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2">Attendance Console</h2>
+                <p class="text-indigo-600 font-extrabold text-sm uppercase tracking-widest">
+                    Saturday, 04 April 2026 • Hour: 03 (Evening Session)
+                </p>
+            </header>
+
+            <div class="glass-card p-8">
+                <div class="flex items-center gap-3 text-indigo-600 font-black text-xs mb-6 uppercase tracking-wider">
+                    <i class="fas fa-camera"></i> Smart Scan
+                </div>
+                <div class="scan-area mb-8" id="video-container">
+
+                    <video id="webcam" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+
+                    <!-- Placeholder -->
+                    <div id="scan-placeholder" class="text-center text-blue-500 font-bold text-sm">
+                        <i class="fas fa-camera text-2xl mb-2"></i>
+                        <p>Camera preview will appear here</p>
+                    </div>
+
+                </div>
+                <div class="flex gap-4 max-w-lg mx-auto mb-4">
+
+
+                    <label class=" flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center cursor-pointer hover:bg-blue-500 shadow-lg shadow-blue-100 transition-colors ">
+    Upload File
+    <input type="file " id="imageInput " class="hidden " accept="image/* " onchange="previewImage(event) ">
+</label>
+                </div>
+
+
+
+                <button onclick="processAttendance() " class="w-full bg-[#5d58f0] text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-95 transition-transform ">
+                    Process Attendance <i class="fas fa-bolt ml-1 "></i>
+                </button>
+                <button onclick="switchView( 'reports'); generateReport(); " class="w-full bg-green-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl ">
+                 Generate Report</button>
+                <div id="result "></div>
+            </div>
+        </div>
+        <div id="view-reports " class="hidden ">
+            <header class="mb-10 ">
+                <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2 ">Attendance Report</h2>
+                <p class="text-indigo-600 font-extrabold text-sm uppercase tracking-widest ">
+                    Day: Saturday • 04 April 2026 • Subject: Advanced AI
+                </p>
+            </header>
+
+            <!-- Percentage Cards -->
+            <div class="grid grid-cols-2 gap-8 mb-10 ">
+
+                <!-- Present -->
+                <div class="bg-green-500 p-6 rounded-3xl flex justify-center items-center ">
+                    <div class="progress-circle ">
+                        <svg class="progress-ring " width="140 " height="140 ">
+            <circle class="bg " cx="70 " cy="70 " r="60 "></circle>
+            <circle class="progress " id="present-ring " cx="70 " cy="70 " r="60 "></circle></svg>
+                        <div class="progress-text ">
+                            <span id="present-percent ">0%</span>
+                            <p>Present</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Absent -->
+                <div class="bg-red-500 p-6 rounded-3xl flex justify-center items-center ">
+                    <div class="progress-circle ">
+                        <svg class="progress-ring " width="140 " height="140 ">
+            <circle class="bg " cx="70 " cy="70 " r="60 "></circle>
+            <circle class="progress " id="absent-ring " cx="70 " cy="70 " r="60 "></circle>
+        </svg>
+                        <div class="progress-text ">
+                            <span id="absent-percent ">0%</span>
+                            <p>Absent</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Absentees Table -->
+            <div class="glass-card p-8 mb-8 ">
+                <h3 class="text-xl font-black mb-6 ">Absentees List</h3>
+
+                <table class="w-full text-left ">
+                    <thead class="text-xs text-slate-400 uppercase font-black ">
+                        <tr>
+                            <th class="py-3 ">S.No</th>
+                            <th>Name</th>
+                            <th>Roll No</th>
+                            <th>Department</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="absentees-body " class="font-semibold text-slate-700 ">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Download Button -->
+            <button id="download-btn " onclick="downloadReport() " class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg ">
+                     Download Report
+                    </button>
+
+        </div>
+    </main>
+
+    <script>
+        let students = [];
+
+        const timetable = [{
+            hour: "01 ",
+            start: "09:00 ",
+            end: "10:00 ",
+            label: "FN "
+        }, {
+            hour: "02 ",
+            start: "10:00 ",
+            end: "10:50 ",
+            label: "FN "
+        }, {
+            hour: "03 ",
+            start: "11:10 ",
+            end: "12:00 ",
+            label: "FN "
+        }, {
+            hour: "04 ",
+            start: "12:00 ",
+            end: "12:50 ",
+            label: "FN "
+        }, {
+            hour: "05 ",
+            start: "13:50 ",
+            end: "14:40 ",
+            label: "AN "
+        }, {
+            hour: "06 ",
+            start: "14:40 ",
+            end: "15:30 ",
+            label: "AN "
+        }, {
+            hour: "07 ",
+            start: "15:40 ",
+            end: "16:30 ",
+            label: "AN "
+        }];
+
+        // =====================
+        // NAVIGATION
+        // =====================
+        function switchView(viewName) {
+            ['dashboard', 'students', 'console', 'reports'].forEach(v => {
+                document.getElementById('view-' + v).classList.add('hidden');
+                document.getElementById('nav-' + v).classList.remove('active', 'text-indigo-600');
+            });
+
+            document.getElementById('view-' + viewName).classList.remove('hidden');
+            document.getElementById('nav-' + viewName).classList.add('active');
+
+            if (viewName === 'students') renderAttendanceList();
+        }
+
+        // =====================
+        // LOAD STUDENTS FROM DB
+        // =====================
+        function loadStudentsForSubject(subjectId) {
+            if (!subjectId || subjectId === "undefined ") return;
+
+            fetch('/get-students', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        subject_id: subjectId
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.students) {
+                        students = data.students.map(s => ({
+                            roll: s.roll_no || s.student_id,
+                            name: s.name,
+                            contact: s.phone_No || s.phone || '-',
+                            department: s.department || '-',
+                            status: s.status || 'ABSENT',
+                            reason: ''
+                        }));
+                        console.log("✅ Students loaded: ", students.length);
+                    }
+                })
+                .catch(err => console.error("Error loading students: ", err));
+        }
+
+        // =====================
+        // RENDER TABLE
+        // =====================
+        function renderAttendanceList() {
+            const body = document.getElementById('attendance-list-body');
+            if (!students || students.length === 0) {
+                body.innerHTML = `<tr><td colspan="5 " class="py-10 text-center text-slate-400 font-bold ">
+            No students loaded. Please process attendance first.</td></tr>`;
+                document.getElementById('p-count').innerText = '0';
+                document.getElementById('a-count').innerText = '0';
+                document.getElementById('rate-percent').innerText = '0%';
+                return;
+            }
+
+            let p = 0;
+            body.innerHTML = students.map((s, idx) => {
+                if (s.status === 'PRESENT') p++;
+                return `
+        <tr class="border-b border-slate-50 ">
+            <td class="py-6 text-slate-800 font-bold ">${s.roll}</td>
+            <td class="py-6 text-slate-600 font-semibold ">${s.name}</td>
+            <td class="py-6 text-blue-500 font-semibold ">${s.contact}</td>
+            <td class="py-6 ">
+                <select onchange="updateStudentStatus(${idx}, this.value) "
+                    class="status-badge ${s.status==='PRESENT' ? 'status-present' : 'status-absent'} cursor-pointer ">
+                    <option value="PRESENT " ${s.status === 'PRESENT' ? 'selected' : ''}>Present</option>
+                    <option value="ABSENT "  ${s.status === 'ABSENT'  ? 'selected' : ''}>Absent</option>
+                </select>
+            </td>
+            <td class="py-6 ">
+                <input type="text " placeholder="Reason (Sick/Late/OD) "
+                    value="${s.reason} "
+                    onblur="students[${idx}].reason=t his.value "
+                    class="w-full bg-slate-50 rounded-xl px-4 py-2 text-[11px] placeholder-slate-300 border border-slate-100 focus:ring-1 focus:ring-indigo-100 outline-none ">
+            </td>
+        </tr>`;
+            }).join('');
+
+            const total = students.length;
+            document.getElementById('p-count').innerText = p;
+            document.getElementById('a-count').innerText = total - p;
+            document.getElementById('rate-percent').innerText =
+                total > 0 ? Math.round((p / total) * 100) + '%' : '0%';
+        }
+
+        function updateStudentStatus(i, val) {
+            students[i].status = val;
+            renderAttendanceList();
+        }
+
+        // =====================
+        // SUBJECT SELECTION
+        // =====================
+        function goToAttendance(subjectId, subjectName, startTime) {
+            console.log("✅ Storing subject: ", subjectId, subjectName);
+
+            sessionStorage.setItem("selectedSubjectId ", subjectId);
+            sessionStorage.setItem("selectedSubjectName ", subjectName);
+            sessionStorage.setItem("selectedStartTime ", startTime);
+            sessionStorage.setItem("selectedDate ", selectedDate.toISOString());
+
+            // Load students immediately
+            loadStudentsForSubject(subjectId);
+
+            switchView('console');
+            document.querySelector("#view-console h2 ").innerText = subjectName + " - Attendance ";
+            updateConsoleDate();
+        }
+
+        // =====================
+        // PROCESS ATTENDANCE
+        // =====================
+        function processAttendance() {
+            const fileInput = document.getElementById("imageInput ");
+            const subjectId = sessionStorage.getItem("selectedSubjectId ");
+
+            console.log("📌 Subject ID: ", subjectId);
+
+            if (!subjectId || subjectId === "undefined " || subjectId === "null ") {
+                alert("⚠️ Please select a subject first from the Dashboard ");
+                return;
+            }
+
+            if (fileInput.files.length === 0) {
+                alert("⚠️ Please upload an image first ");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("image ", fileInput.files[0]);
+            formData.append("subject_id ", subjectId);
+
+            const resultBox = document.getElementById("result ");
+            resultBox.innerHTML = "⏳ Processing... ";
+
+            fetch("/process_attendance ", {
+                    method: "POST ",
+                    body: formData
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || "Server error ");
+                    return data;
+                })
+                .then(data => {
+                    console.log("✅ Response: ", data);
+                    // ✅ STOP scanning animation
+                    document.getElementById("video-container ").classList.add("scan-stopped ");
+                    const container = document.getElementById("video-container ");
+                    container.classList.add("scan-stopped ");
+
+                    container.innerHTML = `
+        <div class="image-box image-success ">
+            <img src="${URL.createObjectURL(fileInput.files[0])} "
+                 class="w-full h-full object-cover rounded-2xl "/>
+        </div>`;
+                    // ✅ UPDATE students array from response
+                    if (data.present && data.absent) {
+                        students = [
+                            ...data.present.map(s => ({
+                                roll: s.roll_no || s.student_id,
+                                name: s.name,
+                                contact: s.phone || '-',
+                                department: s.department || '-',
+                                status: 'PRESENT',
+                                reason: ''
+                            })),
+                            ...data.absent.map(s => ({
+                                roll: s.roll_no || s.student_id,
+                                name: s.name,
+                                contact: s.phone || '-',
+                                department: s.department || '-',
+                                status: 'ABSENT',
+                                reason: ''
+                            }))
+                        ];
+                    }
+
+                    resultBox.innerHTML = `
+    <div class="mt-4 p-4 bg-green-50 rounded-xl ">
+        <p class="font-bold text-green-700 ">
+            ✅ Present: ${data.present.length}
+        </p>
+        <p class="font-bold text-red-700 mt-2 ">
+            ❌ Absent: ${data.absent.length}
+        </p>
+    </div>`;
+                })
+                .catch(err => {
+                    console.error("ERROR: ", err);
+                    resultBox.innerHTML = `<p class="text-red-600 font-bold ">❌ ${err.message}</p>`;
+                });
+        }
+
+        function saveAttendanceChanges() {
+            console.log("💾 Saving manual updates... ");
+
+            // Save updated students globally (already updated via dropdown)
+            sessionStorage.setItem("studentsData ", JSON.stringify(students));
+
+            alert("✅ Changes saved successfully! ");
+        }
+        // =====================
+        // GENERATE REPORT
+        // =====================
+        function generateReport() {
+            // If students empty, try to reload from DB
+            const subjectId = sessionStorage.getItem("selectedSubjectId ");
+
+            if (students.length === 0 && subjectId) {
+                fetch('/get-students', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            subject_id: subjectId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.students) {
+                            students = data.students.map(s => ({
+                                roll: s.roll_no || s.student_id,
+                                name: s.name,
+                                contact: s.phone_No || s.phone || '-',
+                                department: s.department || '-',
+                                status: s.status || 'ABSENT',
+                                reason: ''
+                            }));
+                            renderReport();
+                        }
+                    });
+            } else {
+                renderReport();
+            }
+            const saved = sessionStorage.getItem("studentsData ");
+
+            if (saved) {
+                students = JSON.parse(saved);
+            }
+
+            renderReport();
+        }
+
+        function renderReport() {
+            const total = students.length;
+            const present = students.filter(s => s.status === 'PRESENT').length;
+            const absent = total - present;
+
+            if (total === 0) {
+                document.getElementById('present-percent').innerText = '0%';
+                document.getElementById('absent-percent').innerText = '0%';
+                return;
+            }
+
+            const presentPct = Math.round((present / total) * 100);
+            const absentPct = 100 - presentPct;
+
+            document.getElementById('present-percent').innerText = presentPct + '%';
+            document.getElementById('absent-percent').innerText = absentPct + '%';
+
+            // Animate rings
+            const circumference = 2 * Math.PI * 60; // 377
+            document.getElementById("present-ring ").style.strokeDashoffset =
+                circumference - (presentPct / 100) * circumference;
+            document.getElementById("absent-ring ").style.strokeDashoffset =
+                circumference - (absentPct / 100) * circumference;
+
+            // Absentees table
+            const body = document.getElementById('absentees-body');
+            let count = 1;
+            body.innerHTML = students
+                .filter(s => s.status === 'ABSENT')
+                .map(s => `
+        <tr class="border-b border-slate-50 ">
+            <td class="py-3 font-semibold ">${count++}</td>
+            <td class="py-3 font-semibold ">${s.name}</td>
+            <td class="py-3 font-semibold ">${s.roll}</td>
+            <td class="py-3 font-semibold ">${s.department}</td>
+            <td class="py-3 font-semibold text-blue-500 ">${s.contact}</td>
+        </tr>`).join('');
+        }
+
+        // =====================
+        // DOWNLOAD REPORT
+        // =====================
+        function downloadReport() {
+            const subjectName = sessionStorage.getItem("selectedSubjectName ") || "Subject ";
+            let report = `ATTENDANCE REPORT\n`;
+            report += `Date: ${new Date().toLocaleDateString()}\n`;
+            report += `Subject: ${subjectName}\n\n`;
+            report += `${'Roll No'.padEnd(15)} ${'Name'.padEnd(25)} Status\n`;
+            report += '-'.repeat(50) + '\n';
+
+            students.forEach((s, i) => {
+                report += `${String(s.roll).padEnd(15)} ${s.name.padEnd(25)} ${s.status}\n`;
+            });
+
+            const present = students.filter(s => s.status === 'PRESENT').length;
+            report += `\nTotal: ${students.length} | Present: ${present} | Absent: ${students.length - present}`;
+            report += `\nAttendance Rate: ${Math.round((present / students.length) * 100)}%`;
+
+            const blob = new Blob([report], {
+                type: "text/plain "
+            });
+            const link = document.createElement("a ");
+            link.href = URL.createObjectURL(blob);
+            link.download = `attendance_${subjectName}_${new Date().toISOString().slice(0,10)}.txt`;
+            link.click();
+
+            const btn = document.getElementById("download-btn ");
+            btn.innerText = "✅ Downloaded Successfully ";
+            btn.classList.replace("bg-blue-600 ", "bg-green-600 ");
+        }
+
+        // =====================
+        // CAMERA
+        // =====================
+
+
+
+
+        function previewImage(event) {
+            document.getElementById("video-container ").classList.remove("scan-stopped ");
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById("video-container ").innerHTML = `
+            <div id="imageWrapper " class="image-box ">
+                <img src="${e.target.result} " class="w-full h-full object-cover rounded-2xl "/>
+            </div>`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // =====================
+        // CALENDAR
+        // =====================
+        let selectedDate = new Date();
+
+        function generateCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const today = now.getDate();
+            const firstDay = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+
+            let html = '';
+            for (let i = 0; i < firstDay; i++)
+                html += `<div class="calendar-day other-month "></div>`;
+
+            for (let day = 1; day <= totalDays; day++) {
+                const isToday = day === today;
+                const isSelected = selectedDate.getDate() === day &&
+                    selectedDate.getMonth() === month;
+                html += `<div class="calendar-day ${isToday ? 'active' : ''} ${isSelected ? 'selected' : ''} "
+                      onclick="selectDate(${day}) ">${day}</div>`;
+            }
+            grid.innerHTML = html;
+        }
+
+        function selectDate(day) {
+            const now = new Date();
+            selectedDate = new Date(now.getFullYear(), now.getMonth(), day);
+            const dayName = selectedDate.toLocaleDateString('en-US', {
+                weekday: 'long'
+            });
+            document.getElementById("day ").value = dayName;
+            sessionStorage.setItem("selectedDay ", dayName);
+            generateCalendar();
+            updateConsoleDate();
+            autoloadSubjects();
+        }
+
+        // =====================
+        // SUBJECTS
+        // =====================
+        function autoloadSubjects() {
+            const courseEl = document.querySelector('input[name="course "]:checked');
+            const year = document.getElementById("year ").value;
+            const sem = document.getElementById("semester ").value;
+            const day = document.getElementById('day').value;
+            if (!courseEl || !year || !sem || !day) return;
+
+            fetch('/get-subjects', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        course: courseEl.value,
+                        year,
+                        semester: sem,
+                        day
+                    })
+                })
+                .then(res => res.json())
+                .then(data => renderSubjects(data.subjects))
+                .catch(err => console.error("Error: ", err));
+        }
+
+        function renderSubjects(subjects) {
+            const container = document.getElementById("subject-list ");
+            if (!subjects || subjects.length === 0) {
+                container.innerHTML = "<p class='text-gray-500 col-span-2'>No subjects found</p>";
+                return;
+            }
+            container.innerHTML = subjects.map(sub => `
+                    <div class="bg-white p-6 rounded-2xl shadow-md border hover:shadow-xl transition-all flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold">${sub.subject_code}</p>
+                            <h3 class="text-xl font-black text-gray-800">${sub.subject_name}</h3>
+                            <p class="text-sm text-gray-500 mt-2">⏰ ${formatTime(sub.start_time)} - ${formatTime(sub.end_time)}</p>
+                        </div>
+                        <button onclick="goToAttendance('${sub.subject_id}','${sub.subject_name}','${sub.start_time}')" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold">
+                Mark Attendance
+            </button>
+                    </div>`).join('');
+        }
+
+        function formatTime(time) {
+            if (!time) return "N/A";
+            return new Date("1970-01-01T" + time).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        } // ===================== // DATE
+        / CLOCK / / === === === === === === === function updateConsoleDate() {
+            let dateObj = new Date();
+            try {
+                dateObj = new Date(sessionStorage.getItem("selectedDate")) || new Date();
+            } catch (e) {}
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+            const session = getSessionFromSubject();
+            const fullText = `${formattedDate} • Hour: ${session.hour} (${session.label})`;
+            const ch = document.querySelector('#view-console
+                header p '); if (ch) ch.innerText = fullText; const sh = document.querySelector('#
+                view - students header p '); if (sh) sh.innerText = fullText; const subjectName = sessionStorage.getItem("selectedSubjectName") || "N/A"; const rh = document.querySelector('#
+                view - reports header p '); if (rh) rh.innerText = `Day: ${formattedDate} • Hour: ${session.hour} (${session.label}) • Subject: ${subjectName}`; } function getSessionFromSubject() { const startTime = sessionStorage.getItem("selectedStartTime"); if
+                (!startTime) return {
+                    hour: "--",
+                    label: "--"
+                };
+                const toMin = t => {
+                    const [h, m] = t.split(":").map(Number);
+                    return h * 60 + m;
+                };
+                const cur = toMin(startTime);
+                for (let slot of timetable) {
+                    if (cur >= toMin(slot.start) && cur <
+                        toMin(slot.end)) return {
+                        hour: slot.hour,
+                        label: slot.label
+                    };
+                }
+                return {
+                    hour: "--",
+                    label: "--"
+                };
+            }
+
+            function updateClock() {
+                document.getElementById('live-clock').innerText = n ew Date().toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+            }
+
+            function updateDateHeader() {
+                const now = n ew Date();
+                const hour = n ow.getHours();
+                let greeting = h our < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+                const greetEl = d ocument.querySelector("p.text-slate-400");
+                if (greetEl) greetEl.innerText = g reeting + ", Prof.";
+            }
+
+            function logout() {
+                window.location.href = "/logout";
+            } //=====================/ / INIT //=====================s etInterval(updateClock,
+            1000);
+        updateClock();
+        generateCalendar();
+        updateDateHeader();
+    </script>
+</body>
+
+</html>
