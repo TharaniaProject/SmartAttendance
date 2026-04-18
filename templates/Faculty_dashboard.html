@@ -433,57 +433,55 @@
 
                 </div>
                 <div class="flex gap-4 max-w-lg mx-auto mb-4">
-
-
-                    <label class=" flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center cursor-pointer hover:bg-blue-500 shadow-lg shadow-blue-100 transition-colors ">
+                    <button onclick="startCamera()" class="flex-1 bg-slate-800 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-700 transition-colors">Live Camera</button>
+                    <label class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center cursor-pointer hover:bg-blue-500 shadow-lg shadow-blue-100 transition-colors">
     Upload File
-    <input type="file " id="imageInput " class="hidden " accept="image/* " onchange="previewImage(event) ">
+    <input type="file" id="imageInput" class="hidden" accept="image/*" onchange="previewImage(event)">
 </label>
                 </div>
 
 
-
-                <button onclick="processAttendance() " class="w-full bg-[#5d58f0] text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-95 transition-transform ">
-                    Process Attendance <i class="fas fa-bolt ml-1 "></i>
+                <button onclick="processAttendance()" class="w-full bg-[#5d58f0] text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                    Process Attendance <i class="fas fa-bolt ml-1"></i>
                 </button>
-                <button onclick="switchView( 'reports'); generateReport(); " class="w-full bg-green-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl ">
+                <button onclick="switchView('reports'); generateReport();" class="w-full bg-green-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl">
                  Generate Report</button>
-                <div id="result "></div>
+                <div id="result"></div>
             </div>
         </div>
-        <div id="view-reports " class="hidden ">
-            <header class="mb-10 ">
-                <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2 ">Attendance Report</h2>
-                <p class="text-indigo-600 font-extrabold text-sm uppercase tracking-widest ">
+        <div id="view-reports" class="hidden">
+            <header class="mb-10">
+                <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2">Attendance Report</h2>
+                <p class="text-indigo-600 font-extrabold text-sm uppercase tracking-widest">
                     Day: Saturday • 04 April 2026 • Subject: Advanced AI
                 </p>
             </header>
 
             <!-- Percentage Cards -->
-            <div class="grid grid-cols-2 gap-8 mb-10 ">
+            <div class="grid grid-cols-2 gap-8 mb-10">
 
                 <!-- Present -->
-                <div class="bg-green-500 p-6 rounded-3xl flex justify-center items-center ">
-                    <div class="progress-circle ">
-                        <svg class="progress-ring " width="140 " height="140 ">
-            <circle class="bg " cx="70 " cy="70 " r="60 "></circle>
-            <circle class="progress " id="present-ring " cx="70 " cy="70 " r="60 "></circle></svg>
-                        <div class="progress-text ">
-                            <span id="present-percent ">0%</span>
+                <div class="bg-green-500 p-6 rounded-3xl flex justify-center items-center">
+                    <div class="progress-circle">
+                        <svg class="progress-ring" width="140" height="140">
+            <circle class="bg" cx="70" cy="70" r="60"></circle>
+            <circle class="progress" id="present-ring" cx="70" cy="70" r="60"></circle></svg>
+                        <div class="progress-text">
+                            <span id="present-percent">0%</span>
                             <p>Present</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Absent -->
-                <div class="bg-red-500 p-6 rounded-3xl flex justify-center items-center ">
-                    <div class="progress-circle ">
-                        <svg class="progress-ring " width="140 " height="140 ">
-            <circle class="bg " cx="70 " cy="70 " r="60 "></circle>
-            <circle class="progress " id="absent-ring " cx="70 " cy="70 " r="60 "></circle>
+                <div class="bg-red-500 p-6 rounded-3xl flex justify-center items-center">
+                    <div class="progress-circle">
+                        <svg class="progress-ring" width="140" height="140">
+            <circle class="bg" cx="70" cy="70" r="60"></circle>
+            <circle class="progress" id="absent-ring" cx="70" cy="70" r="60"></circle>
         </svg>
-                        <div class="progress-text ">
-                            <span id="absent-percent ">0%</span>
+                        <div class="progress-text">
+                            <span id="absent-percent">0%</span>
                             <p>Absent</p>
                         </div>
                     </div>
@@ -492,26 +490,26 @@
             </div>
 
             <!-- Absentees Table -->
-            <div class="glass-card p-8 mb-8 ">
-                <h3 class="text-xl font-black mb-6 ">Absentees List</h3>
+            <div class="glass-card p-8 mb-8">
+                <h3 class="text-xl font-black mb-6">Absentees List</h3>
 
-                <table class="w-full text-left ">
-                    <thead class="text-xs text-slate-400 uppercase font-black ">
+                <table class="w-full text-left">
+                    <thead class="text-xs text-slate-400 uppercase font-black">
                         <tr>
-                            <th class="py-3 ">S.No</th>
+                            <th class="py-3">S.No</th>
                             <th>Name</th>
                             <th>Roll No</th>
                             <th>Department</th>
                             <th>Phone</th>
                         </tr>
                     </thead>
-                    <tbody id="absentees-body " class="font-semibold text-slate-700 ">
+                    <tbody id="absentees-body" class="font-semibold text-slate-700">
                     </tbody>
                 </table>
             </div>
 
             <!-- Download Button -->
-            <button id="download-btn " onclick="downloadReport() " class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg ">
+            <button id="download-btn" onclick="downloadReport()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg">
                      Download Report
                     </button>
 
@@ -522,40 +520,40 @@
         let students = [];
 
         const timetable = [{
-            hour: "01 ",
-            start: "09:00 ",
-            end: "10:00 ",
-            label: "FN "
+            hour: "01",
+            start: "09:00",
+            end: "10:00",
+            label: "FN"
         }, {
-            hour: "02 ",
-            start: "10:00 ",
-            end: "10:50 ",
-            label: "FN "
+            hour: "02",
+            start: "10:00",
+            end: "10:50",
+            label: "FN"
         }, {
-            hour: "03 ",
-            start: "11:10 ",
-            end: "12:00 ",
-            label: "FN "
+            hour: "03",
+            start: "11:10",
+            end: "12:00",
+            label: "FN"
         }, {
-            hour: "04 ",
-            start: "12:00 ",
-            end: "12:50 ",
-            label: "FN "
+            hour: "04",
+            start: "12:00",
+            end: "12:50",
+            label: "FN"
         }, {
-            hour: "05 ",
-            start: "13:50 ",
-            end: "14:40 ",
-            label: "AN "
+            hour: "05",
+            start: "13:50",
+            end: "14:40",
+            label: "AN"
         }, {
-            hour: "06 ",
-            start: "14:40 ",
-            end: "15:30 ",
-            label: "AN "
+            hour: "06",
+            start: "14:40",
+            end: "15:30",
+            label: "AN"
         }, {
-            hour: "07 ",
-            start: "15:40 ",
-            end: "16:30 ",
-            label: "AN "
+            hour: "07",
+            start: "15:40",
+            end: "16:30",
+            label: "AN"
         }];
 
         // =====================
@@ -577,7 +575,7 @@
         // LOAD STUDENTS FROM DB
         // =====================
         function loadStudentsForSubject(subjectId) {
-            if (!subjectId || subjectId === "undefined ") return;
+            if (!subjectId || subjectId === "undefined") return;
 
             fetch('/get-students', {
                     method: 'POST',
@@ -599,10 +597,10 @@
                             status: s.status || 'ABSENT',
                             reason: ''
                         }));
-                        console.log("✅ Students loaded: ", students.length);
+                        console.log("✅ Students loaded:", students.length);
                     }
                 })
-                .catch(err => console.error("Error loading students: ", err));
+                .catch(err => console.error("Error loading students:", err));
         }
 
         // =====================
@@ -611,7 +609,7 @@
         function renderAttendanceList() {
             const body = document.getElementById('attendance-list-body');
             if (!students || students.length === 0) {
-                body.innerHTML = `<tr><td colspan="5 " class="py-10 text-center text-slate-400 font-bold ">
+                body.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400 font-bold">
             No students loaded. Please process attendance first.</td></tr>`;
                 document.getElementById('p-count').innerText = '0';
                 document.getElementById('a-count').innerText = '0';
@@ -623,22 +621,24 @@
             body.innerHTML = students.map((s, idx) => {
                 if (s.status === 'PRESENT') p++;
                 return `
-        <tr class="border-b border-slate-50 ">
-            <td class="py-6 text-slate-800 font-bold ">${s.roll}</td>
-            <td class="py-6 text-slate-600 font-semibold ">${s.name}</td>
-            <td class="py-6 text-blue-500 font-semibold ">${s.contact}</td>
-            <td class="py-6 ">
-                <select onchange="updateStudentStatus(${idx}, this.value) "
-                    class="status-badge ${s.status==='PRESENT' ? 'status-present' : 'status-absent'} cursor-pointer ">
-                    <option value="PRESENT " ${s.status === 'PRESENT' ? 'selected' : ''}>Present</option>
-                    <option value="ABSENT "  ${s.status === 'ABSENT'  ? 'selected' : ''}>Absent</option>
+        <tr class="border-b border-slate-50">
+            <td class="py-6 text-slate-800 font-bold">${s.roll}</td>
+            <td class="py-6 text-slate-600 font-semibold">${s.name}</td>
+            <td class="py-6 text-blue-500 font-semibold">${s.contact}</td>
+            <td class="py-6">
+                <select onchange="updateStudentStatus(${idx}, this.value)"
+                    class="status-badge ${s.status === 'PRESENT' ? 'status-present' : 'status-absent'} cursor-pointer">
+                    <option value="PRESENT" ${s.status === 'PRESENT' ? 'selected' : ''}>Present</option>
+                    <option value="ABSENT"  ${s.status === 'ABSENT'  ? 'selected' : ''}>Absent</option>
                 </select>
             </td>
-            <td class="py-6 ">
-                <input type="text " placeholder="Reason (Sick/Late/OD) "
-                    value="${s.reason} "
-                    onblur="students[${idx}].reason=t his.value "
-                    class="w-full bg-slate-50 rounded-xl px-4 py-2 text-[11px] placeholder-slate-300 border border-slate-100 focus:ring-1 focus:ring-indigo-100 outline-none ">
+            <td class="py-6">
+                <input type="text" placeholder="Reason (Sick/Late/OD)"
+                    value="${s.reason}"
+                    onblur="students[${idx}].reason = this.value"
+                    class="w-full bg-slate-50 rounded-xl px-4 py-2 text-[11px]
+                           placeholder-slate-300 border border-slate-100
+                           focus:ring-1 focus:ring-indigo-100 outline-none">
             </td>
         </tr>`;
             }).join('');
@@ -659,18 +659,18 @@
         // SUBJECT SELECTION
         // =====================
         function goToAttendance(subjectId, subjectName, startTime) {
-            console.log("✅ Storing subject: ", subjectId, subjectName);
+            console.log("✅ Storing subject:", subjectId, subjectName);
 
-            sessionStorage.setItem("selectedSubjectId ", subjectId);
-            sessionStorage.setItem("selectedSubjectName ", subjectName);
-            sessionStorage.setItem("selectedStartTime ", startTime);
-            sessionStorage.setItem("selectedDate ", selectedDate.toISOString());
+            sessionStorage.setItem("selectedSubjectId", subjectId);
+            sessionStorage.setItem("selectedSubjectName", subjectName);
+            sessionStorage.setItem("selectedStartTime", startTime);
+            sessionStorage.setItem("selectedDate", selectedDate.toISOString());
 
             // Load students immediately
             loadStudentsForSubject(subjectId);
 
             switchView('console');
-            document.querySelector("#view-console h2 ").innerText = subjectName + " - Attendance ";
+            document.querySelector("#view-console h2").innerText = subjectName + " - Attendance";
             updateConsoleDate();
         }
 
@@ -678,48 +678,48 @@
         // PROCESS ATTENDANCE
         // =====================
         function processAttendance() {
-            const fileInput = document.getElementById("imageInput ");
-            const subjectId = sessionStorage.getItem("selectedSubjectId ");
+            const fileInput = document.getElementById("imageInput");
+            const subjectId = sessionStorage.getItem("selectedSubjectId");
 
-            console.log("📌 Subject ID: ", subjectId);
+            console.log("📌 Subject ID:", subjectId);
 
-            if (!subjectId || subjectId === "undefined " || subjectId === "null ") {
-                alert("⚠️ Please select a subject first from the Dashboard ");
+            if (!subjectId || subjectId === "undefined" || subjectId === "null") {
+                alert("⚠️ Please select a subject first from the Dashboard");
                 return;
             }
 
             if (fileInput.files.length === 0) {
-                alert("⚠️ Please upload an image first ");
+                alert("⚠️ Please upload an image first");
                 return;
             }
 
             const formData = new FormData();
-            formData.append("image ", fileInput.files[0]);
-            formData.append("subject_id ", subjectId);
+            formData.append("image", fileInput.files[0]);
+            formData.append("subject_id", subjectId);
 
-            const resultBox = document.getElementById("result ");
-            resultBox.innerHTML = "⏳ Processing... ";
+            const resultBox = document.getElementById("result");
+            resultBox.innerHTML = "⏳ Processing...";
 
-            fetch("/process_attendance ", {
-                    method: "POST ",
+            fetch("/process_attendance", {
+                    method: "POST",
                     body: formData
                 })
                 .then(async res => {
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.error || "Server error ");
+                    if (!res.ok) throw new Error(data.error || "Server error");
                     return data;
                 })
                 .then(data => {
-                    console.log("✅ Response: ", data);
+                    console.log("✅ Response:", data);
                     // ✅ STOP scanning animation
-                    document.getElementById("video-container ").classList.add("scan-stopped ");
-                    const container = document.getElementById("video-container ");
-                    container.classList.add("scan-stopped ");
+                    document.getElementById("video-container").classList.add("scan-stopped");
+                    const container = document.getElementById("video-container");
+                    container.classList.add("scan-stopped");
 
                     container.innerHTML = `
-        <div class="image-box image-success ">
-            <img src="${URL.createObjectURL(fileInput.files[0])} "
-                 class="w-full h-full object-cover rounded-2xl "/>
+        <div class="image-box image-success">
+            <img src="${URL.createObjectURL(fileInput.files[0])}"
+                 class="w-full h-full object-cover rounded-2xl"/>
         </div>`;
                     // ✅ UPDATE students array from response
                     if (data.present && data.absent) {
@@ -744,35 +744,35 @@
                     }
 
                     resultBox.innerHTML = `
-    <div class="mt-4 p-4 bg-green-50 rounded-xl ">
-        <p class="font-bold text-green-700 ">
+    <div class="mt-4 p-4 bg-green-50 rounded-xl">
+        <p class="font-bold text-green-700">
             ✅ Present: ${data.present.length}
         </p>
-        <p class="font-bold text-red-700 mt-2 ">
+        <p class="font-bold text-red-700 mt-2">
             ❌ Absent: ${data.absent.length}
         </p>
     </div>`;
                 })
                 .catch(err => {
-                    console.error("ERROR: ", err);
-                    resultBox.innerHTML = `<p class="text-red-600 font-bold ">❌ ${err.message}</p>`;
+                    console.error("ERROR:", err);
+                    resultBox.innerHTML = `<p class="text-red-600 font-bold">❌ ${err.message}</p>`;
                 });
         }
 
         function saveAttendanceChanges() {
-            console.log("💾 Saving manual updates... ");
+            console.log("💾 Saving manual updates...");
 
             // Save updated students globally (already updated via dropdown)
-            sessionStorage.setItem("studentsData ", JSON.stringify(students));
+            sessionStorage.setItem("studentsData", JSON.stringify(students));
 
-            alert("✅ Changes saved successfully! ");
+            alert("✅ Changes saved successfully!");
         }
         // =====================
         // GENERATE REPORT
         // =====================
         function generateReport() {
             // If students empty, try to reload from DB
-            const subjectId = sessionStorage.getItem("selectedSubjectId ");
+            const subjectId = sessionStorage.getItem("selectedSubjectId");
 
             if (students.length === 0 && subjectId) {
                 fetch('/get-students', {
@@ -801,7 +801,7 @@
             } else {
                 renderReport();
             }
-            const saved = sessionStorage.getItem("studentsData ");
+            const saved = sessionStorage.getItem("studentsData");
 
             if (saved) {
                 students = JSON.parse(saved);
@@ -829,9 +829,9 @@
 
             // Animate rings
             const circumference = 2 * Math.PI * 60; // 377
-            document.getElementById("present-ring ").style.strokeDashoffset =
+            document.getElementById("present-ring").style.strokeDashoffset =
                 circumference - (presentPct / 100) * circumference;
-            document.getElementById("absent-ring ").style.strokeDashoffset =
+            document.getElementById("absent-ring").style.strokeDashoffset =
                 circumference - (absentPct / 100) * circumference;
 
             // Absentees table
@@ -840,12 +840,12 @@
             body.innerHTML = students
                 .filter(s => s.status === 'ABSENT')
                 .map(s => `
-        <tr class="border-b border-slate-50 ">
-            <td class="py-3 font-semibold ">${count++}</td>
-            <td class="py-3 font-semibold ">${s.name}</td>
-            <td class="py-3 font-semibold ">${s.roll}</td>
-            <td class="py-3 font-semibold ">${s.department}</td>
-            <td class="py-3 font-semibold text-blue-500 ">${s.contact}</td>
+        <tr class="border-b border-slate-50">
+            <td class="py-3 font-semibold">${count++}</td>
+            <td class="py-3 font-semibold">${s.name}</td>
+            <td class="py-3 font-semibold">${s.roll}</td>
+            <td class="py-3 font-semibold">${s.department}</td>
+            <td class="py-3 font-semibold text-blue-500">${s.contact}</td>
         </tr>`).join('');
         }
 
@@ -853,7 +853,7 @@
         // DOWNLOAD REPORT
         // =====================
         function downloadReport() {
-            const subjectName = sessionStorage.getItem("selectedSubjectName ") || "Subject ";
+            const subjectName = sessionStorage.getItem("selectedSubjectName") || "Subject";
             let report = `ATTENDANCE REPORT\n`;
             report += `Date: ${new Date().toLocaleDateString()}\n`;
             report += `Subject: ${subjectName}\n\n`;
@@ -869,16 +869,16 @@
             report += `\nAttendance Rate: ${Math.round((present / students.length) * 100)}%`;
 
             const blob = new Blob([report], {
-                type: "text/plain "
+                type: "text/plain"
             });
-            const link = document.createElement("a ");
+            const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
             link.download = `attendance_${subjectName}_${new Date().toISOString().slice(0,10)}.txt`;
             link.click();
 
-            const btn = document.getElementById("download-btn ");
-            btn.innerText = "✅ Downloaded Successfully ";
-            btn.classList.replace("bg-blue-600 ", "bg-green-600 ");
+            const btn = document.getElementById("download-btn");
+            btn.innerText = "✅ Downloaded Successfully";
+            btn.classList.replace("bg-blue-600", "bg-green-600");
         }
 
         // =====================
@@ -887,16 +887,15 @@
 
 
 
-
         function previewImage(event) {
-            document.getElementById("video-container ").classList.remove("scan-stopped ");
+            document.getElementById("video-container").classList.remove("scan-stopped");
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = e => {
-                document.getElementById("video-container ").innerHTML = `
-            <div id="imageWrapper " class="image-box ">
-                <img src="${e.target.result} " class="w-full h-full object-cover rounded-2xl "/>
+                document.getElementById("video-container").innerHTML = `
+            <div id="imageWrapper" class="image-box">
+                <img src="${e.target.result}" class="w-full h-full object-cover rounded-2xl"/>
             </div>`;
             };
             reader.readAsDataURL(file);
@@ -918,14 +917,14 @@
 
             let html = '';
             for (let i = 0; i < firstDay; i++)
-                html += `<div class="calendar-day other-month "></div>`;
+                html += `<div class="calendar-day other-month"></div>`;
 
             for (let day = 1; day <= totalDays; day++) {
                 const isToday = day === today;
                 const isSelected = selectedDate.getDate() === day &&
                     selectedDate.getMonth() === month;
-                html += `<div class="calendar-day ${isToday ? 'active' : ''} ${isSelected ? 'selected' : ''} "
-                      onclick="selectDate(${day}) ">${day}</div>`;
+                html += `<div class="calendar-day ${isToday ? 'active' : ''} ${isSelected ? 'selected' : ''}"
+                      onclick="selectDate(${day})">${day}</div>`;
             }
             grid.innerHTML = html;
         }
@@ -936,8 +935,8 @@
             const dayName = selectedDate.toLocaleDateString('en-US', {
                 weekday: 'long'
             });
-            document.getElementById("day ").value = dayName;
-            sessionStorage.setItem("selectedDay ", dayName);
+            document.getElementById("day").value = dayName;
+            sessionStorage.setItem("selectedDay", dayName);
             generateCalendar();
             updateConsoleDate();
             autoloadSubjects();
@@ -947,9 +946,9 @@
         // SUBJECTS
         // =====================
         function autoloadSubjects() {
-            const courseEl = document.querySelector('input[name="course "]:checked');
-            const year = document.getElementById("year ").value;
-            const sem = document.getElementById("semester ").value;
+            const courseEl = document.querySelector('input[name="course"]:checked');
+            const year = document.getElementById("year").value;
+            const sem = document.getElementById("semester").value;
             const day = document.getElementById('day').value;
             if (!courseEl || !year || !sem || !day) return;
 
@@ -967,41 +966,48 @@
                 })
                 .then(res => res.json())
                 .then(data => renderSubjects(data.subjects))
-                .catch(err => console.error("Error: ", err));
+                .catch(err => console.error("Error:", err));
         }
 
         function renderSubjects(subjects) {
-            const container = document.getElementById("subject-list ");
+            const container = document.getElementById("subject-list");
             if (!subjects || subjects.length === 0) {
                 container.innerHTML = "<p class='text-gray-500 col-span-2'>No subjects found</p>";
                 return;
             }
             container.innerHTML = subjects.map(sub => `
-                    <div class="bg-white p-6 rounded-2xl shadow-md border hover:shadow-xl transition-all flex flex-col justify-between">
-                        <div>
-                            <p class="text-xs text-gray-400 font-bold">${sub.subject_code}</p>
-                            <h3 class="text-xl font-black text-gray-800">${sub.subject_name}</h3>
-                            <p class="text-sm text-gray-500 mt-2">⏰ ${formatTime(sub.start_time)} - ${formatTime(sub.end_time)}</p>
-                        </div>
-                        <button onclick="goToAttendance('${sub.subject_id}','${sub.subject_name}','${sub.start_time}')" class="mt-6 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold">
+        <div class="bg-white p-6 rounded-2xl shadow-md border hover:shadow-xl transition-all flex flex-col justify-between">
+            <div>
+                <p class="text-xs text-gray-400 font-bold">${sub.subject_code}</p>
+                <h3 class="text-xl font-black text-gray-800">${sub.subject_name}</h3>
+                <p class="text-sm text-gray-500 mt-2">⏰ ${formatTime(sub.start_time)} - ${formatTime(sub.end_time)}</p>
+            </div>
+            <button onclick="goToAttendance('${sub.subject_id}','${sub.subject_name}','${sub.start_time}')"
+                class="mt-6 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold">
                 Mark Attendance
             </button>
-                    </div>`).join('');
+        </div>`).join('');
         }
 
         function formatTime(time) {
             if (!time) return "N/A";
-            return new Date("1970-01-01T" + time).toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            });
-        } // ===================== // DATE
-        / CLOCK / / === === === === === === === function updateConsoleDate() {
+            return new Date("1970-01-01T" + time)
+                .toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+        }
+
+        // =====================
+        // DATE / CLOCK
+        // =====================
+        function updateConsoleDate() {
             let dateObj = new Date();
             try {
                 dateObj = new Date(sessionStorage.getItem("selectedDate")) || new Date();
             } catch (e) {}
+
             const formattedDate = dateObj.toLocaleDateString('en-US', {
                 weekday: 'long',
                 day: '2-digit',
@@ -1010,53 +1016,68 @@
             });
             const session = getSessionFromSubject();
             const fullText = `${formattedDate} • Hour: ${session.hour} (${session.label})`;
-            const ch = document.querySelector('#view-console
-                header p '); if (ch) ch.innerText = fullText; const sh = document.querySelector('#
-                view - students header p '); if (sh) sh.innerText = fullText; const subjectName = sessionStorage.getItem("selectedSubjectName") || "N/A"; const rh = document.querySelector('#
-                view - reports header p '); if (rh) rh.innerText = `Day: ${formattedDate} • Hour: ${session.hour} (${session.label}) • Subject: ${subjectName}`; } function getSessionFromSubject() { const startTime = sessionStorage.getItem("selectedStartTime"); if
-                (!startTime) return {
-                    hour: "--",
-                    label: "--"
-                };
-                const toMin = t => {
-                    const [h, m] = t.split(":").map(Number);
-                    return h * 60 + m;
-                };
-                const cur = toMin(startTime);
-                for (let slot of timetable) {
-                    if (cur >= toMin(slot.start) && cur <
-                        toMin(slot.end)) return {
+
+            const ch = document.querySelector('#view-console header p');
+            if (ch) ch.innerText = fullText;
+            const sh = document.querySelector('#view-students header p');
+            if (sh) sh.innerText = fullText;
+
+            const subjectName = sessionStorage.getItem("selectedSubjectName") || "N/A";
+            const rh = document.querySelector('#view-reports header p');
+            if (rh) rh.innerText = `Day: ${formattedDate} • Hour: ${session.hour} (${session.label}) • Subject: ${subjectName}`;
+        }
+
+        function getSessionFromSubject() {
+            const startTime = sessionStorage.getItem("selectedStartTime");
+            if (!startTime) return {
+                hour: "--",
+                label: "--"
+            };
+            const toMin = t => {
+                const [h, m] = t.split(":").map(Number);
+                return h * 60 + m;
+            };
+            const cur = toMin(startTime);
+            for (let slot of timetable) {
+                if (cur >= toMin(slot.start) && cur < toMin(slot.end))
+                    return {
                         hour: slot.hour,
                         label: slot.label
                     };
-                }
-                return {
-                    hour: "--",
-                    label: "--"
-                };
             }
+            return {
+                hour: "--",
+                label: "--"
+            };
+        }
 
-            function updateClock() {
-                document.getElementById('live-clock').innerText = n ew Date().toLocaleTimeString('en-US', {
+        function updateClock() {
+            document.getElementById('live-clock').innerText =
+                new Date().toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit',
                     hour12: true
                 });
-            }
+        }
 
-            function updateDateHeader() {
-                const now = n ew Date();
-                const hour = n ow.getHours();
-                let greeting = h our < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
-                const greetEl = d ocument.querySelector("p.text-slate-400");
-                if (greetEl) greetEl.innerText = g reeting + ", Prof.";
-            }
+        function updateDateHeader() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = hour < 12 ? "Good Morning" :
+                hour < 17 ? "Good Afternoon" : "Good Evening";
+            const greetEl = document.querySelector("p.text-slate-400");
+            if (greetEl) greetEl.innerText = greeting + ", Prof.";
+        }
 
-            function logout() {
-                window.location.href = "/logout";
-            } //=====================/ / INIT //=====================s etInterval(updateClock,
-            1000);
+        function logout() {
+            window.location.href = "/logout";
+        }
+
+        // =====================
+        // INIT
+        // =====================
+        setInterval(updateClock, 1000);
         updateClock();
         generateCalendar();
         updateDateHeader();
