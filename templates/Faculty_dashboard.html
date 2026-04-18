@@ -597,7 +597,7 @@
                             status: s.status || 'ABSENT',
                             reason: ''
                         }));
-                        console.log("✅ Students loaded:", students.length);
+                        console.log("Students loaded:", students.length);
                     }
                 })
                 .catch(err => console.error("Error loading students:", err));
@@ -659,7 +659,7 @@
         // SUBJECT SELECTION
         // =====================
         function goToAttendance(subjectId, subjectName, startTime) {
-            console.log("✅ Storing subject:", subjectId, subjectName);
+            console.log("Storing subject:", subjectId, subjectName);
 
             sessionStorage.setItem("selectedSubjectId", subjectId);
             sessionStorage.setItem("selectedSubjectName", subjectName);
@@ -681,15 +681,15 @@
             const fileInput = document.getElementById("imageInput");
             const subjectId = sessionStorage.getItem("selectedSubjectId");
 
-            console.log("📌 Subject ID:", subjectId);
+            console.log("Subject ID:", subjectId);
 
             if (!subjectId || subjectId === "undefined" || subjectId === "null") {
-                alert("⚠️ Please select a subject first from the Dashboard");
+                alert("Please select a subject first from the Dashboard");
                 return;
             }
 
             if (fileInput.files.length === 0) {
-                alert("⚠️ Please upload an image first");
+                alert("Please upload an image first");
                 return;
             }
 
@@ -710,8 +710,8 @@
                     return data;
                 })
                 .then(data => {
-                    console.log("✅ Response:", data);
-                    // ✅ STOP scanning animation
+                    console.log("Response:", data);
+                    // STOP scanning animation
                     document.getElementById("video-container").classList.add("scan-stopped");
                     const container = document.getElementById("video-container");
                     container.classList.add("scan-stopped");
@@ -721,7 +721,7 @@
             <img src="${URL.createObjectURL(fileInput.files[0])}"
                  class="w-full h-full object-cover rounded-2xl"/>
         </div>`;
-                    // ✅ UPDATE students array from response
+                    // UPDATE students array from response
                     if (data.present && data.absent) {
                         students = [
                             ...data.present.map(s => ({
@@ -746,10 +746,10 @@
                     resultBox.innerHTML = `
     <div class="mt-4 p-4 bg-green-50 rounded-xl">
         <p class="font-bold text-green-700">
-            ✅ Present: ${data.present.length}
+            Present: ${data.present.length}
         </p>
         <p class="font-bold text-red-700 mt-2">
-            ❌ Absent: ${data.absent.length}
+            Absent: ${data.absent.length}
         </p>
     </div>`;
                 })
@@ -760,12 +760,12 @@
         }
 
         function saveAttendanceChanges() {
-            console.log("💾 Saving manual updates...");
+            console.log("Saving manual updates...");
 
             // Save updated students globally (already updated via dropdown)
             sessionStorage.setItem("studentsData", JSON.stringify(students));
 
-            alert("✅ Changes saved successfully!");
+            alert("Changes saved successfully!");
         }
         // =====================
         // GENERATE REPORT
@@ -877,7 +877,7 @@
             link.click();
 
             const btn = document.getElementById("download-btn");
-            btn.innerText = "✅ Downloaded Successfully";
+            btn.innerText = "Downloaded Successfully";
             btn.classList.replace("bg-blue-600", "bg-green-600");
         }
 
@@ -1067,7 +1067,8 @@
             let greeting = hour < 12 ? "Good Morning" :
                 hour < 17 ? "Good Afternoon" : "Good Evening";
             const greetEl = document.querySelector("p.text-slate-400");
-            if (greetEl) greetEl.innerText = greeting + ", Prof.";
+            const facultyName = "{{ faculty.name }}";
+            greetEl.innerText = `${greeting}, ${facultyName}`;
         }
 
         function logout() {
