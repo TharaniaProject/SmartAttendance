@@ -1,86 +1,92 @@
-import cv2
-import os
-from deepface import DeepFace
+function generateReport() {
 
-DATASET_PATH = "dataset"
-GROUP_IMAGE = "C:/xampp/htdocs/final(sams)/group.jpeg"
+            // ✅ Always use latest saved manual data
+            const saved = sessionStorage.getItem("studentsData");
 
-img = cv2.imread(GROUP_IMAGE)
+            if (saved) {
+                students = JSON.parse(saved);
+            }
 
-if img is None:
-    print("Image not found")
-    exit()
+            // ❌ If still empty → only then fetch from DB
+            if (!students || students.length === 0) {
 
-# Detect faces using OpenCV (faster & stable)
-face_cascade = cv2.CascadeClassifier(
-    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-)
+                const subjectId = sessionStorage.getItem("selectedSubjectId");
 
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-faces = face_cascade.detectMultiScale(
-    gray,
-    scaleFactor=1.05,
-    minNeighbors=3,
-    minSize=(50, 50)
-)
+                if (!subjectId) {
+                    alert("⚠️ No subject selected");
+                    return;
+                }
 
-present = []
+                fetch('/get-students', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            subject_id: subjectId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.students) {
+                            students = data.students.map(s => ({
+                                roll: s.roll_no || s.student_id,
+                                name: s.name,
+                                contact: s.phone_No || s.phone || '-',
+                                department: s.department || '-',
+                                status: s.status || 'ABSENT',
+                                reason: ''
+                            }));
 
-for i, (x, y, w, h) in enumerate(faces):
+                            // ✅ Save it so next time no DB call
+                            sessionStorage.setItem("studentsData", JSON.stringify(students));
 
-    face_img = img[y:y+h, x:x+w]
+                            renderReport();
+                        }
+                    });
 
-    temp_path = f"temp_{i}.jpg"
-    cv2.imwrite(temp_path, face_img)
+            } else {
+                // ✅ Directly render updated data
+                renderReport();
+            }
+        }
+        function renderReport() {
+            const total = students.length;
+            const present = students.filter(s => s.status === 'PRESENT').length;
+            const absent = total - present;
 
-    try:
-        result = DeepFace.find(
-    img_path=temp_path,
-    db_path=DATASET_PATH,
-    enforce_detection=False,
-    model_name="Facenet",
-    distance_metric="cosine",
-    threshold=0.5
-)
+            if (total === 0) {
+                document.getElementById('present-percent').innerText = '0%';
+                document.getElementById('absent-percent').innerText = '0%';
+                return;
+            }
 
-        name = "Unknown"
+            const presentPct = Math.round((present / total) * 100);
+            const absentPct = 100 - presentPct;
 
-        if len(result) > 0 and len(result[0]) > 0:
-           best = result[0].iloc[0]
-           distance = best['distance']
+            document.getElementById('present-percent').innerText = presentPct + '%';
+            document.getElementById('absent-percent').innerText = absentPct + '%';
 
-           print("Distance:", distance)
-           if distance < 0.8:   # 🔥 relaxed
-                name = best['identity'].split(os.sep)[-2]
-                if name not in present:
-                    present.append(name)
-    except:
-        name = "Unknown"
+            // Animate rings
+            const circumference = 2 * Math.PI * 60; // 377
+            document.getElementById("present-ring").style.strokeDashoffset =
+                circumference - (presentPct / 100) * circumference;
+            document.getElementById("absent-ring").style.strokeDashoffset =
+                circumference - (absentPct / 100) * circumference;
 
-    # Draw
-    color = (0,255,0) if name != "Unknown" else (0,0,255)
+            // Absentees table
+            const body = document.getElementById('absentees-body');
+            let count = 1;
+            body.innerHTML = students
+                .filter(s => s.status === 'ABSENT')
+                .map(s => `
+        <tr class="border-b border-slate-50">
+            <td class="py-3 font-semibold">${count++}</td>
+            <td class="py-3 font-semibold">${s.name}</td>
+            <td class="py-3 font-semibold">${s.roll}</td>
+            <td class="py-3 font-semibold">${s.department}</td>
+            <td class="py-3 font-semibold text-blue-500">${s.contact}</td>
+        </tr>`).join('');
+        }
 
-    cv2.rectangle(img, (x,y), (x+w,y+h), color, 2)
-    cv2.putText(img, name, (x,y-10),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
-
-# Only folders = students
-all_students = [
-    d for d in os.listdir(DATASET_PATH)
-    if os.path.isdir(os.path.join(DATASET_PATH, d))
-]
-
-absent = list(set(all_students) - set(present))
-
-print("\nPresent:", present)
-print("Absent:", absent)
-
-cv2.imshow("Result", img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-# Cleanup temp files
-for i in range(len(faces)):
-    temp = f"temp_{i}.jpg"
-    if os.path.exists(temp):
-        os.remove(temp)
+        
