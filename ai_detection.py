@@ -48,7 +48,7 @@ def recognize_faces(img_path):
 
     # ---- FIX: try multiple backends in order ----
     # MODIFY HERE: reorder or add backends as needed
-    DETECTOR_BACKENDS = ["FaceNet","retinaface"]
+    DETECTOR_BACKENDS = ["retinaface"]
 
     faces = []
     for backend in DETECTOR_BACKENDS:

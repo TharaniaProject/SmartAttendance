@@ -200,7 +200,6 @@
             background: #e0e7ff;
             color: #4f46e5;
         }
-        /* FIX: scan-stopped properly hides the scan line */
 
         .scan-area.scan-stopped::after {
             animation: none !important;
@@ -248,6 +247,7 @@
             <header class="flex justify-between items-start mb-12">
                 <div>
                     <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2">Faculty Dashboard</h2>
+                    <!-- FIX: id="greeting-text" is populated by fetchFacultyName() on load -->
                     <p id="greeting-text" class="text-slate-400 font-semibold text-sm">Welcome back</p>
                 </div>
                 <div class="clock-widget">
@@ -261,7 +261,6 @@
 
             <div class="glass-card p-8 mt-8">
                 <h3 class="text-xl font-black mb-6">Select Course & Subjects</h3>
-
                 <div class="flex gap-6 mb-6">
                     <label class="flex items-center gap-2 font-bold">
                         <input type="radio" name="course" value="B.E" onchange="autoloadSubjects()"> B.E
@@ -270,7 +269,6 @@
                         <input type="radio" name="course" value="BTECH" onchange="autoloadSubjects()"> B.Tech
                     </label>
                 </div>
-
                 <div class="flex gap-6 mb-6">
                     <select id="year" onchange="autoloadSubjects()" class="px-4 py-2 rounded-xl border">
                         <option value="">Select Year</option>
@@ -279,7 +277,6 @@
                         <option value="3">3rd Year</option>
                         <option value="4">4th Year</option>
                     </select>
-
                     <select id="semester" onchange="autoloadSubjects()" class="px-4 py-2 rounded-xl border">
                         <option value="">Select Semester</option>
                         <option value="1">Sem 1</option>
@@ -291,7 +288,6 @@
                         <option value="7">Sem 7</option>
                         <option value="8">Sem 8</option>
                     </select>
-
                     <select id="day" onchange="autoloadSubjects()" class="px-4 py-2 rounded-xl border">
                         <option value="">Select Day</option>
                         <option value="Monday">Monday</option>
@@ -301,7 +297,6 @@
                         <option value="Friday">Friday</option>
                     </select>
                 </div>
-
                 <div id="subject-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
 
@@ -317,7 +312,6 @@
                         Mark Attendance
                     </button>
                 </div>
-
                 <div class="col-span-12 lg:col-span-4 glass-card p-8">
                     <div class="flex justify-between items-start mb-10">
                         <div class="bg-indigo-50 p-3 rounded-xl text-indigo-600"><i class="fas fa-user-check"></i></div>
@@ -329,7 +323,6 @@
                         <div class="bg-indigo-500 h-full w-[92%]"></div>
                     </div>
                 </div>
-
                 <div class="col-span-12 lg:col-span-4 glass-card p-8">
                     <div class="flex justify-between items-center mb-6 px-2">
                         <h4 class="font-black text-slate-800 tracking-tight">Schedule</h4>
@@ -368,7 +361,6 @@
                     </div>
                 </div>
             </header>
-
             <div class="glass-card p-10">
                 <div class="flex justify-between items-center mb-10 border-b border-slate-50 pb-6">
                     <h3 class="text-5xl font-black italic text-slate-800">Student Roll & Status</h3>
@@ -387,7 +379,6 @@
                     <tbody id="attendance-list-body" class="text-slate-900 font-bold"></tbody>
                 </table>
             </div>
-
             <button onclick="saveAttendanceChanges()" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">
                 Save Changes
             </button>
@@ -399,13 +390,10 @@
                 <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2">Attendance Console</h2>
                 <p id="console-date-header" class="text-indigo-600 font-extrabold text-sm uppercase tracking-widest"></p>
             </header>
-
             <div class="glass-card p-8">
                 <div class="flex items-center gap-3 text-indigo-600 font-black text-xs mb-6 uppercase tracking-wider">
                     <i class="fas fa-camera"></i> Smart Scan
                 </div>
-
-                <!-- FIX: scan-area stays as the outer container always -->
                 <div class="scan-area mb-8" id="video-container">
                     <video id="webcam" autoplay playsinline class="w-full h-full object-cover hidden"></video>
                     <canvas id="captureCanvas" class="hidden"></canvas>
@@ -413,12 +401,10 @@
                         <i class="fas fa-camera text-2xl mb-2"></i>
                         <p>Camera preview will appear here</p>
                     </div>
-                    <!-- Image preview goes inside scan-area, not replacing it -->
                     <div id="image-preview-wrapper" class="hidden w-full h-full">
                         <img id="preview-img" src="#" class="w-full h-full object-cover rounded-2xl" />
                     </div>
                 </div>
-
                 <div class="flex gap-4 max-w-lg mx-auto mb-4">
                     <button onclick="startAutoCamera()" class="flex-1 bg-slate-800 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-700 transition-colors">
                         Live Camera
@@ -428,15 +414,12 @@
                         <input type="file" id="imageInput" class="hidden" accept="image/*" onchange="previewImage(event)">
                     </label>
                 </div>
-
                 <button onclick="processAttendance()" class="w-full bg-[#5d58f0] text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-95 transition-transform mb-3">
                     Process Attendance <i class="fas fa-bolt ml-1"></i>
                 </button>
-
                 <button onclick="switchView('reports'); generateReport();" class="w-full bg-green-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl mb-3">
                     Generate Report
                 </button>
-
                 <div id="result"></div>
             </div>
         </div>
@@ -447,7 +430,6 @@
                 <h2 class="text-5xl font-black text-slate-800 tracking-tighter mb-2">Attendance Report</h2>
                 <p id="reports-date-header" class="text-indigo-600 font-extrabold text-sm uppercase tracking-widest"></p>
             </header>
-
             <div class="grid grid-cols-2 gap-8 mb-10">
                 <div class="bg-green-500 p-6 rounded-3xl flex justify-center items-center">
                     <div class="progress-circle">
@@ -461,7 +443,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="bg-red-500 p-6 rounded-3xl flex justify-center items-center">
                     <div class="progress-circle">
                         <svg class="progress-ring" width="140" height="140">
@@ -475,7 +456,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="glass-card p-8 mb-8">
                 <h3 class="text-xl font-black mb-6">Absentees List</h3>
                 <table class="w-full text-left">
@@ -491,7 +471,6 @@
                     <tbody id="absentees-body" class="font-semibold text-slate-700"></tbody>
                 </table>
             </div>
-
             <button id="download-btn" onclick="downloadReport()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg">
                 Download Report
             </button>
@@ -545,6 +524,65 @@
         }];
 
         // =====================
+        // CLOCK
+        // =====================
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-clock').innerText =
+                now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+            document.getElementById('live-date').innerText =
+                now.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric'
+                });
+        }
+
+        // =====================
+        // FIX 1: FACULTY NAME — fetch from /get-faculty-name on page load
+        // Falls back to a safe default if the endpoint isn't available yet.
+        // =====================
+        function fetchFacultyName() {
+            const hour = new Date().getHours();
+            const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+            const greetEl = document.getElementById("greeting-text");
+            if (!greetEl) return;
+
+            // Try the Flask endpoint; gracefully fall back if it fails
+            fetch('/get-faculty-name')
+                .then(res => {
+                    if (!res.ok) throw new Error("No endpoint");
+                    return res.json();
+                })
+                .then(data => {
+                    // Endpoint should return { name: "Dr. Ramesh Kumar" }
+                    const name = (data && data.name) ? data.name : "Professor";
+                    greetEl.innerText = `${greeting}, ${name}`;
+                })
+                .catch(() => {
+                    // Fallback: try to read from a meta tag Jinja can inject:
+                    // <meta name="faculty-name" content="{{ faculty_name }}">
+                    const meta = document.querySelector('meta[name="faculty-name"]');
+                    const name = (meta && meta.content && meta.content !== "{{ faculty_name }}") ?
+                        meta.content :
+                        "Professor";
+                    greetEl.innerText = `${greeting}, ${name}`;
+                });
+        }
+
+        // =====================
+        // LOGOUT
+        // =====================
+        function logout() {
+            window.location.href = "/logout";
+        }
+
+        // =====================
         // NAVIGATION
         // =====================
         function switchView(viewName) {
@@ -557,6 +595,85 @@
 
             if (viewName === 'students') renderAttendanceList();
             updateConsoleDate();
+        }
+
+        // =====================
+        // FIX 2: HOUR CALCULATION
+        // Root cause: start_time stored as "HH:MM:SS" but toMin() only needs HH and MM —
+        // that was fine. The real gap was that getSessionFromSubject() returned "—" whenever
+        // no subject was selected yet, and updateConsoleDate() built a misleading "Hour: —"
+        // string in the header. Now we only show the hour block when a subject is actually
+        // chosen, and we strip trailing seconds before parsing.
+        // =====================
+        function getSessionFromSubject() {
+            const rawTime = sessionStorage.getItem("selectedStartTime");
+
+            // Guard: nothing selected yet
+            if (!rawTime || rawTime === "undefined" || rawTime === "null" || rawTime === "null") {
+                return null; // caller handles null
+            }
+
+            // Strip seconds if present ("09:00:00" → "09:00")
+            const startTime = rawTime.substring(0, 5);
+
+            const toMin = t => {
+                const parts = t.split(":");
+                return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+            };
+
+            const cur = toMin(startTime);
+
+            for (const slot of timetable) {
+                if (cur >= toMin(slot.start) && cur < toMin(slot.end)) {
+                    return {
+                        hour: slot.hour,
+                        label: slot.label
+                    };
+                }
+            }
+
+            // Time is set but doesn't match any slot — show the raw time instead of "—"
+            return {
+                hour: startTime,
+                label: "Custom"
+            };
+        }
+
+        // =====================
+        // UPDATE HEADER DATES
+        // =====================
+        function updateConsoleDate() {
+            let dateObj = new Date();
+            try {
+                const stored = sessionStorage.getItem("selectedDate");
+                if (stored) dateObj = new Date(stored);
+            } catch (e) {}
+
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            // FIX: only append hour info when a subject has been chosen
+            const session = getSessionFromSubject();
+            const hourPart = session ? ` • Hour: ${session.hour} (${session.label})` : "";
+            const fullText = formattedDate + hourPart;
+
+            const consoleHeader = document.getElementById('console-date-header');
+            if (consoleHeader) consoleHeader.innerText = fullText;
+
+            const studentsHeader = document.getElementById('students-date-header');
+            if (studentsHeader) studentsHeader.innerText = fullText;
+
+            const subjectName = sessionStorage.getItem("selectedSubjectName");
+            const reportsHeader = document.getElementById('reports-date-header');
+            if (reportsHeader) {
+                reportsHeader.innerText = formattedDate +
+                    (session ? ` • Hour: ${session.hour} (${session.label})` : "") +
+                    (subjectName ? ` • Subject: ${subjectName}` : "");
+            }
         }
 
         // =====================
@@ -592,7 +709,6 @@
                             reason: ''
                         }));
                         sessionStorage.setItem("studentsData", JSON.stringify(students));
-                        console.log("Students loaded:", students.length);
                     }
                 })
                 .catch(err => console.error("Error loading students:", err));
@@ -603,8 +719,6 @@
         // =====================
         function renderAttendanceList() {
             const body = document.getElementById('attendance-list-body');
-
-            // Load latest from sessionStorage if available
             const saved = sessionStorage.getItem("studentsData");
             if (saved) students = JSON.parse(saved);
 
@@ -648,7 +762,6 @@
                 total > 0 ? Math.round((p / total) * 100) + '%' : '0%';
         }
 
-        // FIX: Single unified updateStudentStatus — merges both duplicate definitions
         function updateStudentStatus(i, val) {
             students[i].status = val;
             sessionStorage.setItem("studentsData", JSON.stringify(students));
@@ -657,21 +770,23 @@
 
         // =====================
         // SUBJECT SELECTION
+        // FIX: store startTime exactly as returned from server, no trimming here —
+        //      getSessionFromSubject() now handles the seconds trim itself.
         // =====================
         function goToAttendance(subjectId, subjectName, startTime) {
             sessionStorage.setItem("selectedSubjectId", subjectId);
             sessionStorage.setItem("selectedSubjectName", subjectName);
-            sessionStorage.setItem("selectedStartTime", startTime);
+            sessionStorage.setItem("selectedStartTime", startTime); // e.g. "09:00" or "09:00:00"
             sessionStorage.setItem("selectedDate", selectedDate.toISOString());
 
             loadStudentsForSubject(subjectId);
             switchView('console');
             document.querySelector("#view-console h2").innerText = subjectName + " — Attendance";
-            updateConsoleDate();
+            updateConsoleDate(); // now reflects the chosen hour immediately
         }
 
         // =====================
-        // PROCESS ATTENDANCE (FIX: imageFile declared before FormData)
+        // PROCESS ATTENDANCE
         // =====================
         async function processAttendance() {
             const subjectId = sessionStorage.getItem("selectedSubjectId");
@@ -680,7 +795,6 @@
                 return;
             }
 
-            // FIX: resolve imageFile FIRST, then build FormData
             let imageFile;
             const fileInput = document.getElementById("imageInput");
             const video = document.getElementById("webcam");
@@ -693,18 +807,15 @@
                 canvas.height = video.videoHeight;
                 canvas.getContext("2d").drawImage(video, 0, 0);
                 imageFile = await new Promise(resolve => {
-                    canvas.toBlob(blob => {
-                        resolve(new File([blob], "capture.jpg", {
-                            type: "image/jpeg"
-                        }));
-                    });
+                    canvas.toBlob(blob => resolve(new File([blob], "capture.jpg", {
+                        type: "image/jpeg"
+                    })));
                 });
             } else {
                 alert("Please upload an image or start the live camera first.");
                 return;
             }
 
-            // FIX: FormData built AFTER imageFile is ready
             const selectedDateStr = sessionStorage.getItem("selectedDate");
             const cleanDate = selectedDateStr ?
                 new Date(selectedDateStr).toISOString().split("T")[0] :
@@ -723,7 +834,6 @@
                     method: "POST",
                     body: formData
                 });
-
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Server error");
 
@@ -745,17 +855,14 @@
                         reason: ''
                     }))
                 ];
-
                 sessionStorage.setItem("studentsData", JSON.stringify(students));
 
-                // FIX: clean HTML string — no spaces inside tags
                 resultBox.innerHTML = `
                     <div class="mt-4 p-4 bg-green-50 rounded-xl">
                         <p class="font-bold text-green-700">✅ Present: ${data.present.length}</p>
                         <p class="font-bold text-red-700 mt-2">❌ Absent: ${data.absent.length}</p>
                         <p class="text-xs text-slate-400 mt-1">Date: ${data.date}</p>
                     </div>`;
-
             } catch (err) {
                 console.error(err);
                 resultBox.innerHTML = `<p class="mt-4 text-red-600 font-bold">❌ ${err.message}</p>`;
@@ -785,10 +892,8 @@
             const total = students.length;
             const present = students.filter(s => s.status === 'PRESENT').length;
             const presentPercent = total ? Math.round((present / total) * 100) : 0;
-            const absentPercent = 100 - presentPercent;
-
             document.getElementById("present-percent").innerText = presentPercent + "%";
-            document.getElementById("absent-percent").innerText = absentPercent + "%";
+            document.getElementById("absent-percent").innerText = (100 - presentPercent) + "%";
         }
 
         // =====================
@@ -845,11 +950,10 @@
 
             const radius = 60;
             const circumference = 2 * Math.PI * radius;
-            const presentCircle = document.getElementById("present-ring");
-            const absentCircle = document.getElementById("absent-ring");
-
-            presentCircle.style.strokeDashoffset = circumference - (presentPercent / 100) * circumference;
-            absentCircle.style.strokeDashoffset = circumference - (absentPercent / 100) * circumference;
+            document.getElementById("present-ring").style.strokeDashoffset =
+                circumference - (presentPercent / 100) * circumference;
+            document.getElementById("absent-ring").style.strokeDashoffset =
+                circumference - (absentPercent / 100) * circumference;
 
             document.getElementById("present-percent").innerText = presentPercent + "%";
             document.getElementById("absent-percent").innerText = absentPercent + "%";
@@ -874,11 +978,9 @@
             report += `Subject: ${subjectName}\n\n`;
             report += `${'Roll No'.padEnd(15)} ${'Name'.padEnd(25)} Status\n`;
             report += '-'.repeat(55) + '\n';
-
             students.forEach(s => {
                 report += `${String(s.roll).padEnd(15)} ${s.name.padEnd(25)} ${s.status}\n`;
             });
-
             const present = students.filter(s => s.status === 'PRESENT').length;
             report += `\nTotal: ${students.length} | Present: ${present} | Absent: ${students.length - present}`;
             report += `\nAttendance Rate: ${students.length > 0 ? Math.round((present / students.length) * 100) : 0}%`;
@@ -898,13 +1000,10 @@
 
         // =====================
         // CAMERA — UPLOAD PREVIEW
-        // FIX: preview shows inside scan-area, not replacing it
         // =====================
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
-
-            // Stop camera if running
             if (cameraStream) {
                 cameraStream.getTracks().forEach(t => t.stop());
                 cameraStream = null;
@@ -915,11 +1014,8 @@
                 document.getElementById("webcam").classList.add("hidden");
                 document.getElementById("scan-placeholder").style.display = "none";
                 const wrapper = document.getElementById("image-preview-wrapper");
-                const img = document.getElementById("preview-img");
-                img.src = e.target.result;
+                document.getElementById("preview-img").src = e.target.result;
                 wrapper.classList.remove("hidden");
-
-                // FIX: add scan-stopped to the scan-area to halt animation
                 document.getElementById("video-container").classList.add("scan-stopped");
             };
             reader.readAsDataURL(file);
@@ -933,15 +1029,11 @@
             const placeholder = document.getElementById('scan-placeholder');
             const container = document.getElementById("video-container");
 
-            // Reset preview
             document.getElementById("image-preview-wrapper").classList.add("hidden");
             container.classList.remove("scan-stopped");
 
             try {
-                if (cameraStream) {
-                    cameraStream.getTracks().forEach(t => t.stop());
-                }
-
+                if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
                 cameraStream = await navigator.mediaDevices.getUserMedia({
                     video: true,
                     audio: false
@@ -950,12 +1042,7 @@
                 video.onloadedmetadata = () => video.play();
                 video.classList.remove('hidden');
                 placeholder.style.display = "none";
-
-                // MODIFY HERE: change 3000 to adjust auto-capture delay (milliseconds)
-                setTimeout(() => {
-                    captureAndSend();
-                }, 1000);
-
+                setTimeout(() => captureAndSend(), 1000);
             } catch (err) {
                 console.error(err);
                 alert("Camera not accessible. Please check permissions.");
@@ -963,7 +1050,7 @@
         }
 
         // =====================
-        // CAPTURE & SEND (FIX: formData declared before use)
+        // CAPTURE & SEND
         // =====================
         async function captureAndSend() {
             const video = document.getElementById('webcam');
@@ -974,17 +1061,12 @@
                 return;
             }
 
-            // Capture frame from video
             const canvas = document.createElement("canvas");
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext("2d").drawImage(video, 0, 0);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg"));
 
-            const blob = await new Promise(resolve =>
-                canvas.toBlob(resolve, "image/jpeg")
-            );
-
-            // FIX: formData declared FIRST, then all appends
             const selectedDateStr = sessionStorage.getItem("selectedDate");
             const cleanDate = selectedDateStr ?
                 new Date(selectedDateStr).toISOString().split("T")[0] :
@@ -1024,35 +1106,29 @@
                         reason: ''
                     }))
                 ];
-
                 sessionStorage.setItem("studentsData", JSON.stringify(students));
 
-                // FIX: stop scan animation BEFORE replacing content
                 const container = document.getElementById("video-container");
                 container.classList.add("scan-stopped");
-
-                // Stop camera stream
                 if (cameraStream) {
                     cameraStream.getTracks().forEach(t => t.stop());
                     cameraStream = null;
                 }
 
-                // Show captured image inside scan-area (don't replace scan-area itself)
                 document.getElementById("webcam").classList.add("hidden");
                 document.getElementById("scan-placeholder").style.display = "none";
                 const wrapper = document.getElementById("image-preview-wrapper");
                 document.getElementById("preview-img").src = URL.createObjectURL(blob);
                 wrapper.classList.remove("hidden");
-                wrapper.querySelector("img") && wrapper.querySelector("img").classList.add("image-success");
+                const img = wrapper.querySelector("img");
+                if (img) img.classList.add("image-success");
 
-                // FIX: clean HTML result string
                 resultBox.innerHTML = `
                     <div class="mt-4 p-4 bg-green-50 rounded-xl">
                         <p class="font-bold text-green-700">✅ Present: ${data.present.length}</p>
                         <p class="font-bold text-red-700 mt-2">❌ Absent: ${data.absent.length}</p>
                         <p class="text-xs text-slate-400 mt-1">Date recorded: ${data.date}</p>
                     </div>`;
-
             } catch (err) {
                 console.error(err);
                 resultBox.innerHTML = `<p class="mt-4 text-red-600 font-bold">❌ ${err.message}</p>`;
@@ -1159,109 +1235,12 @@
         }
 
         // =====================
-        // DATE / CLOCK
-        // FIX: Template literals fixed (no spaces after $)
-        // =====================
-        function updateConsoleDate() {
-            let dateObj = new Date();
-            try {
-                const stored = sessionStorage.getItem("selectedDate");
-                if (stored) dateObj = new Date(stored);
-            } catch (e) {}
-
-            const formattedDate = dateObj.toLocaleDateString('en-US', {
-                weekday: 'long',
-                day: '2-digit',
-                month: 'long',
-                year: 'numeric'
-            });
-
-            const session = getSessionFromSubject();
-            const fullText = `${formattedDate} • Hour: ${session.hour} (${session.label})`;
-
-            const consoleHeader = document.getElementById('console-date-header');
-            if (consoleHeader) consoleHeader.innerText = fullText;
-
-            const studentsHeader = document.getElementById('students-date-header');
-            if (studentsHeader) studentsHeader.innerText = fullText;
-
-            const subjectName = sessionStorage.getItem("selectedSubjectName") || "N/A";
-            // FIX: correct template literal — no spaces after $
-            const reportsHeader = document.getElementById('reports-date-header');
-            if (reportsHeader) reportsHeader.innerText = `${formattedDate} • Hour: ${session.hour} (${session.label}) • Subject: ${subjectName}`;
-        }
-
-        function getSessionFromSubject() {
-            const startTime = sessionStorage.getItem("selectedStartTime");
-
-            console.log("DEBUG startTime:", startTime); // 👈 add this
-
-            if (!startTime || startTime === "undefined") {
-                return {
-                    hour: "N/A",
-                    label: "N/A"
-                };
-            }
-
-            const toMin = t => {
-                const [h, m] = t.split(":").map(Number);
-                return h * 60 + m;
-            };
-
-            const cur = toMin(startTime);
-
-            for (let slot of timetable) {
-                if (cur >= toMin(slot.start) && cur < toMin(slot.end)) {
-                    return {
-                        hour: slot.hour,
-                        label: slot.label
-                    };
-                }
-            }
-
-            return {
-                hour: "N/A",
-                label: "N/A"
-            };
-        }
-
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('live-clock').innerText =
-                now.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
-                });
-            document.getElementById('live-date').innerText =
-                now.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric'
-                });
-        }
-
-        function updateDateHeader() {
-            const now = new Date();
-            const hour = now.getHours();
-            const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
-            const facultyName = "{{ faculty.name }}";
-            const greetEl = document.getElementById("greeting-text");
-            if (greetEl) greetEl.innerText = `${greeting}, ${facultyName}`;
-        }
-
-        function logout() {
-            window.location.href = "/logout";
-        }
-
-        // =====================
         // INIT
         // =====================
         setInterval(updateClock, 1000);
         updateClock();
         generateCalendar();
-        updateDateHeader();
+        fetchFacultyName(); // FIX: replaces the old updateDateHeader()
         updateConsoleDate();
     </script>
 </body>
