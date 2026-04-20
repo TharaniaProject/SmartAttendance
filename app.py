@@ -9,23 +9,26 @@ from deepface import DeepFace
 from ai_detection import recognize_faces
 
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
 
 db_config = {
-    "host":               "localhost",
-    "user":               "student",
-    "password":           "Tharania@2005",
-    "database":           "smart_attendance",
-    "port":               3307,
+    "host": os.getenv("DB_HOST"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "database": os.getenv("DB_NAME"),
+    "port": int(os.getenv("DB_PORT", 3306)),
     "connection_timeout": 30,
 }
 
-connection_pool = pooling.MySQLConnectionPool(
-    pool_name="smart_pool",
-    pool_size=5,
-    **db_config
-)
+try:
+    connection_pool = pooling.MySQLConnectionPool(
+        pool_name="smart_pool",
+        pool_size=5,
+        **db_config
+    )
+except Exception as e:
+    print("❌ DB Pool Error:", e)
 
 def get_db():
     """Return a fresh connection from the pool."""
@@ -37,8 +40,12 @@ def get_cursor():
     return conn, cur
 
 
-with open("embeddings.pkl", "rb") as f:
-    database = pickle.load(f)
+if os.path.exists("embeddings.pkl"):
+    with open("embeddings.pkl", "rb") as f:
+        database = pickle.load(f)
+else:
+    print("⚠ embeddings.pkl not found")
+    database = {}
 
 print("Embeddings loaded. Keys:", list(database.keys()))
 
@@ -274,8 +281,9 @@ def dashboard_data():
 @app.route('/recognize', methods=['POST'])
 def recognize():
     file = request.files['image']
-    path = "temp.jpg"
+    path = os.path.join(UPLOAD_FOLDER, "temp.jpg")
     file.save(path)
+
     present, absent = recognize_faces(path)
     return jsonify({"present": present, "absent": absent})
 
@@ -398,8 +406,8 @@ def process_attendance():
     print("Attendance date:", attendance_date)
 
     # Save image
-    img_path = "temp_upload.jpg"
-    file.save(img_path)
+    img_path = os.path.join(UPLOAD_FOLDER, "temp_upload.jpg")
+file.save(img_path)
 
     present_names, absent_names = recognize_faces(img_path)
 
@@ -901,4 +909,5 @@ def admin_get_logs():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=8080, debug=True)
