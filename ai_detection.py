@@ -3,31 +3,23 @@ import pickle
 import numpy as np
 from deepface import DeepFace
 
-# =============================================
-# LOAD EMBEDDINGS
-# =============================================
+
 with open("embeddings.pkl", "rb") as f:
     database = pickle.load(f)
 
 print("Embeddings loaded:", list(database.keys()))
 
 
-# =============================================
-# COSINE DISTANCE
-# =============================================
+
 def cosine_distance(a, b):
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)
     if norm_a == 0 or norm_b == 0:
-        return 1.0   # treat zero-vector as no match
+        return 1.0   
     return 1 - np.dot(a, b) / (norm_a * norm_b)
 
 
-# =============================================
-# MAIN RECOGNITION FUNCTION
-# FIX: multi-backend fallback so detection
-#      doesn't silently return 0 faces on CPU
-# =============================================
+
 def recognize_faces(img_path):
     """
     Detect and recognise faces in img_path.
@@ -46,8 +38,7 @@ def recognize_faces(img_path):
         print("Could not read image:", img_path)
         return [], []
 
-    # ---- FIX: try multiple backends in order ----
-    # MODIFY HERE: reorder or add backends as needed
+
     DETECTOR_BACKENDS = ["retinaface"]
 
     faces = []
@@ -72,22 +63,19 @@ def recognize_faces(img_path):
     present   = []
     used_ids  = set()
 
-    # MODIFY HERE: adjust threshold (0.0–1.0)
-    # Lower  = stricter match  (fewer false positives)
-    # Higher = looser match    (fewer false negatives)
+
     THRESHOLD = 0.4
 
     for face in faces:
         try:
             face_img = face["face"]
 
-            # Normalise pixel range to 0-255
+
             if face_img.max() <= 1.0:
                 face_img = (face_img * 255).astype("uint8")
             else:
                 face_img = face_img.astype("uint8")
 
-            # Skip tiny/corrupt face crops
             if face_img.shape[0] < 20 or face_img.shape[1] < 20:
                 print("Skipping very small face crop")
                 continue

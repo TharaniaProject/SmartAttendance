@@ -11,9 +11,7 @@ from ai_detection import recognize_faces
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-# =============================================
-# CONNECTION POOL
-# =============================================
+
 db_config = {
     "host":               "localhost",
     "user":               "student",
@@ -38,9 +36,7 @@ def get_cursor():
     cur  = conn.cursor(dictionary=True)
     return conn, cur
 
-# =============================================
-# LOAD FACE EMBEDDINGS (once at startup)
-# =============================================
+
 with open("embeddings.pkl", "rb") as f:
     database = pickle.load(f)
 
@@ -50,17 +46,13 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-# =============================================
-# HOME / LOGIN
-# =============================================
+
 @app.route('/')
 def home():
     return render_template('login.html')
 
 
-# =============================================
-# LOGIN
-# =============================================
+
 @app.route('/login', methods=['POST'])
 def login():
     data     = request.get_json()
@@ -100,9 +92,7 @@ def login():
     return jsonify({"status": "fail", "message": "Invalid ID or Password"}), 401
 
 
-# =============================================
-# STUDENT DASHBOARD
-# =============================================
+
 @app.route('/student')
 def student():
     if 'user_id' not in session:
@@ -110,10 +100,7 @@ def student():
     return render_template('student_dashboard.html')
 
 
-# =============================================
-# FACULTY DASHBOARD
-# FIX: store faculty name in session so /get-faculty-name can serve it
-# =============================================
+
 @app.route('/faculty')
 def faculty():
     if 'user_id' not in session:
@@ -136,10 +123,8 @@ def faculty():
     return render_template('Faculty_dashboard.html', faculty={"name": faculty_name})
 
 
-# =============================================
-# FIX: NEW ENDPOINT — returns faculty name for the JS dashboard greeting
-# The HTML calls fetch('/get-faculty-name') on load; this serves the response.
-# =============================================
+
+
 @app.route('/get-faculty-name')
 def get_faculty_name():
     if 'user_id' not in session:
@@ -165,9 +150,7 @@ def get_faculty_name():
     return jsonify({"name": name})
 
 
-# =============================================
-# GET SUBJECTS FOR SELECTED DAY
-# =============================================
+
 @app.route('/get-subjects', methods=['POST'])
 def get_subjects():
     data     = request.get_json()
@@ -216,19 +199,15 @@ def get_subjects():
     return jsonify({"subjects": subjects})
 
 
-# =============================================
-# ADMIN PAGE
-# =============================================
+
 @app.route('/admin')
 def admin():
     if 'user_id' not in session:
         return redirect('/')
-    return render_template('admin_dashboard.html')
+    return render_template('Admin_Dashboard.html')
 
 
-# =============================================
-# STUDENT DASHBOARD DATA
-# =============================================
+
 @app.route('/dashboard-data')
 def dashboard_data():
     if 'user_id' not in session:
@@ -291,9 +270,7 @@ def dashboard_data():
     })
 
 
-# =============================================
-# RECOGNIZE
-# =============================================
+
 @app.route('/recognize', methods=['POST'])
 def recognize():
     file = request.files['image']
@@ -303,9 +280,7 @@ def recognize():
     return jsonify({"present": present, "absent": absent})
 
 
-# =============================================
-# TEST / SESSION CHECK
-# =============================================
+
 @app.route('/test')
 def test():
     return "Flask OK"
@@ -315,9 +290,7 @@ def check_session():
     return {"session": dict(session)}
 
 
-# =============================================
-# LOGOUT
-# =============================================
+
 @app.route('/logout')
 def logout():
     user_id = session.get('user_id')
@@ -338,9 +311,7 @@ def logout():
     return redirect('/')
 
 
-# =============================================
-# ABSENT HISTORY
-# =============================================
+
 @app.route('/absent-history')
 def absent_history():
     if 'user_id' not in session:
@@ -389,25 +360,15 @@ def absent_history():
     return jsonify(data)
 
 
-# =============================================
-# PROCESS ATTENDANCE — FACE RECOGNITION
-# FIX 1: student_id kept as original type from DB (not force-cast to str)
-#         so MySQL INT column accepts it correctly.
-# FIX 2: explicit try/except per INSERT so one bad row doesn't abort all.
-# FIX 3: added debug prints for every INSERT attempt to trace failures.
-# FIX 4: ensure unique key exists in DB via advisory note in comment below.
-#
-# IMPORTANT — run this once in MySQL if not done already:
-#   ALTER TABLE attendance
-#     ADD UNIQUE KEY uq_attendance (student_id, subject_id, date);
-# =============================================
+
 @app.route('/process_attendance', methods=['POST'])
 def process_attendance():
     print("process_attendance called")
-
+    print("✅ process_attendance HIT")
+    print("SESSION:", session)
     if 'user_id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
-
+        print("❌ SESSION MISSING")
+        return jsonify({"error": "Session expired. Please login again."}), 401
     file       = request.files.get("image")
     subject_id = request.form.get("subject_id")
     date_str   = request.form.get("date")
@@ -423,18 +384,17 @@ def process_attendance():
     except:
         return jsonify({"error": "subject_id must be integer"}), 400
 
+    # ✅ FIX: Use Indian timezone (IST)
     from datetime import datetime
+    from zoneinfo import ZoneInfo
 
-    # ✅ FIX: Always use proper current date if not provided
-    if date_str and date_str not in ("undefined", "null", ""):
-        try:
-            attendance_date = datetime.strptime(date_str[:10], "%Y-%m-%d").date()
-        except Exception as e:
-            print("Date parse error:", e)
-            attendance_date = datetime.now().date()
-    else:
-        attendance_date = datetime.now().date()
+    india_time = datetime.now(ZoneInfo("Asia/Kolkata"))
 
+    # ✅ FIX: Proper date handling
+    attendance_date = india_time.date()
+
+    print("Server UTC time:", datetime.utcnow())
+    print("India time:", india_time)
     print("Attendance date:", attendance_date)
 
     # Save image
@@ -462,7 +422,6 @@ def process_attendance():
         inserted_present = []
         inserted_absent  = []
 
-        # ✅ FIX: Remove ON DUPLICATE temporarily to debug
         for short in present_names:
             if short not in student_map:
                 continue
@@ -471,9 +430,12 @@ def process_attendance():
 
             try:
                 cur.execute("""
-                    INSERT INTO attendance (student_id, subject_id, date, status, marked_by)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (s["student_id"], subject_id, attendance_date, 'Present', 'Automatic'))
+            INSERT INTO attendance (student_id, subject_id, date, status, marked_by)
+            VALUES (%s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE status = VALUES(status), marked_by = VALUES(marked_by)
+        """, (s["student_id"], subject_id, attendance_date, 'Present', 'Automatic'))
+
+
 
                 inserted_present.append(s)
 
@@ -488,9 +450,11 @@ def process_attendance():
 
             try:
                 cur.execute("""
-                    INSERT INTO attendance (student_id, subject_id, date, status, marked_by)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (s["student_id"], subject_id, attendance_date, 'Absent', 'Automatic'))
+            INSERT INTO attendance (student_id, subject_id, date, status, marked_by)
+            VALUES (%s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE status = VALUES(status), marked_by = VALUES(marked_by)
+            """, (s["student_id"], subject_id, attendance_date, 'Absent', 'Automatic'))
+
 
                 inserted_absent.append(s)
 
@@ -515,9 +479,6 @@ def process_attendance():
         "date": str(attendance_date)
     })
 
-# =============================================
-# GET STUDENTS FOR SUBJECT + DATE
-# =============================================
 @app.route('/get-students', methods=['POST'])
 def get_students():
     data       = request.get_json()
@@ -526,14 +487,10 @@ def get_students():
 
     if not subject_id:
         return jsonify({"error": "No subject provided"}), 400
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    attendance_date = datetime.now(ZoneInfo("Asia/Kolkata")).date()
 
-    from datetime import datetime as dt
-    attendance_date = dt.today().date()
-    if date_str and date_str not in ("undefined", "null", ""):
-        try:
-            attendance_date = dt.strptime(date_str[:10], "%Y-%m-%d").date()
-        except Exception as e:
-            print("get_students date error:", e)
 
     print("Fetching students — subject:", subject_id, "date:", attendance_date)
 
@@ -567,9 +524,7 @@ def get_students():
     return jsonify({"students": rows})
 
 
-# ════════════════════════════════════════════════════════════
-# ADMIN — DASHBOARD STATS
-# ════════════════════════════════════════════════════════════
+
 @app.route('/admin/dashboard-stats')
 def admin_dashboard_stats():
     conn, cur = get_cursor()
@@ -615,9 +570,7 @@ def admin_dashboard_stats():
     })
 
 
-# ════════════════════════════════════════════════════════════
-# ADMIN — STUDENTS
-# ════════════════════════════════════════════════════════════
+
 @app.route('/admin/students')
 def admin_get_students():
     conn, cur = get_cursor()
@@ -713,9 +666,7 @@ def admin_delete_faculty(faculty_id):
         conn.close()
 
 
-# ════════════════════════════════════════════════════════════
-# ADMIN — SUBJECTS
-# ════════════════════════════════════════════════════════════
+
 @app.route('/admin/subjects')
 def admin_get_subjects():
     conn, cur = get_cursor()
@@ -765,9 +716,7 @@ def admin_delete_subject(subject_id):
         conn.close()
 
 
-# ════════════════════════════════════════════════════════════
-# ADMIN — COURSES / CLASSES
-# ════════════════════════════════════════════════════════════
+
 @app.route('/admin/courses')
 def admin_get_courses():
     conn, cur = get_cursor()
@@ -812,9 +761,7 @@ def admin_delete_course(course_id):
         conn.close()
 
 
-# ════════════════════════════════════════════════════════════
-# ADMIN — TIMETABLE
-# ════════════════════════════════════════════════════════════
+
 @app.route('/admin/timetable')
 def admin_get_timetable():
     conn, cur = get_cursor()
@@ -874,9 +821,7 @@ def admin_delete_timetable(tid):
         conn.close()
 
 
-# ════════════════════════════════════════════════════════════
-# ADMIN — USERS
-# ════════════════════════════════════════════════════════════
+
 @app.route('/admin/users')
 def admin_get_users():
     conn, cur = get_cursor()
@@ -920,9 +865,7 @@ def admin_delete_user(user_id):
         conn.close()
 
 
-# ════════════════════════════════════════════════════════════
-# ADMIN — SYSTEM LOGS
-# ════════════════════════════════════════════════════════════
+
 @app.route('/admin/logs')
 def admin_get_logs():
     role_filter = request.args.get('role', '')
@@ -956,8 +899,6 @@ def admin_get_logs():
         conn.close()
 
 
-# =============================================
-# RUN
-# =============================================
+
 if __name__ == '__main__':
     app.run(debug=True)

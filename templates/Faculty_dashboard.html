@@ -597,13 +597,7 @@
             updateConsoleDate();
         }
 
-        // =====================
-        // FIX 2: HOUR CALCULATION
-        // Root cause: start_time stored as "HH:MM:SS" but toMin() only needs HH and MM —
-        // that was fine. The real gap was that getSessionFromSubject() returned "—" whenever
-        // no subject was selected yet, and updateConsoleDate() built a misleading "Hour: —"
-        // string in the header. Now we only show the hour block when a subject is actually
-        // chosen, and we strip trailing seconds before parsing.
+
         // =====================
         function getSessionFromSubject() {
             const rawTime = sessionStorage.getItem("selectedStartTime");
@@ -613,7 +607,7 @@
                 return null; // caller handles null
             }
 
-            // Strip seconds if present ("09:00:00" → "09:00")
+
             const startTime = rawTime.substring(0, 5);
 
             const toMin = t => {
@@ -785,6 +779,10 @@
             updateConsoleDate(); // now reflects the chosen hour immediately
         }
 
+        function getTodayIST() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        }
         // =====================
         // PROCESS ATTENDANCE
         // =====================
@@ -817,10 +815,8 @@
             }
 
             const selectedDateStr = sessionStorage.getItem("selectedDate");
-            const cleanDate = selectedDateStr ?
-                new Date(selectedDateStr).toISOString().split("T")[0] :
-                new Date().toISOString().split("T")[0];
 
+            const cleanDate = getTodayIST();
             const formData = new FormData();
             formData.append("image", imageFile);
             formData.append("subject_id", subjectId);
@@ -830,12 +826,25 @@
             resultBox.innerHTML = `<div class="mt-4 p-4 bg-blue-50 rounded-xl text-blue-700 font-bold">⏳ Processing attendance...</div>`;
 
             try {
-                const res = await fetch("/process_attendance", {
+                const res = await fetch('http://127.0.0.1:5000/process_attendance', {
                     method: "POST",
-                    body: formData
+                    body: formData,
+                    credentials: "include"
                 });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || "Server error");
+                const text = await res.text();
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error("❌ Server returned HTML instead of JSON:");
+                    console.log(text); // <-- THIS WILL SHOW REAL ERROR
+                    throw new Error("Invalid JSON response");
+                }
+
+                if (!res.ok) {
+                    throw new Error(data.error || "Server error");
+                }
 
                 students = [
                     ...data.present.map(s => ({
@@ -859,8 +868,8 @@
 
                 resultBox.innerHTML = `
                     <div class="mt-4 p-4 bg-green-50 rounded-xl">
-                        <p class="font-bold text-green-700">✅ Present: ${data.present.length}</p>
-                        <p class="font-bold text-red-700 mt-2">❌ Absent: ${data.absent.length}</p>
+                        <p class="font-bold text-green-700">Present: ${data.present.length}</p>
+                        <p class="font-bold text-red-700 mt-2"> Absent: ${data.absent.length}</p>
                         <p class="text-xs text-slate-400 mt-1">Date: ${data.date}</p>
                     </div>`;
             } catch (err) {
@@ -869,9 +878,8 @@
             }
         }
 
-        // =====================
-        // SAVE ATTENDANCE
-        // =====================
+
+
         function saveAttendanceChanges() {
             sessionStorage.setItem("studentsData", JSON.stringify(students));
             updateAbsenteesAfterSave();
@@ -896,9 +904,7 @@
             document.getElementById("absent-percent").innerText = (100 - presentPercent) + "%";
         }
 
-        // =====================
-        // GENERATE REPORT
-        // =====================
+
         function generateReport() {
             const subjectId = sessionStorage.getItem("selectedSubjectId");
             const saved = sessionStorage.getItem("studentsData");
@@ -968,9 +974,7 @@
                 </tr>`).join('');
         }
 
-        // =====================
-        // DOWNLOAD REPORT
-        // =====================
+
         function downloadReport() {
             const subjectName = sessionStorage.getItem("selectedSubjectName") || "Subject";
             let report = `ATTENDANCE REPORT\n`;
@@ -998,9 +1002,7 @@
             btn.classList.replace("bg-blue-600", "bg-green-600");
         }
 
-        // =====================
-        // CAMERA — UPLOAD PREVIEW
-        // =====================
+
         function previewImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1021,9 +1023,7 @@
             reader.readAsDataURL(file);
         }
 
-        // =====================
-        // CAMERA — LIVE
-        // =====================
+
         async function startAutoCamera() {
             const video = document.getElementById('webcam');
             const placeholder = document.getElementById('scan-placeholder');
@@ -1049,9 +1049,7 @@
             }
         }
 
-        // =====================
-        // CAPTURE & SEND
-        // =====================
+
         async function captureAndSend() {
             const video = document.getElementById('webcam');
             const subjectId = sessionStorage.getItem("selectedSubjectId");
@@ -1068,9 +1066,8 @@
             const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg"));
 
             const selectedDateStr = sessionStorage.getItem("selectedDate");
-            const cleanDate = selectedDateStr ?
-                new Date(selectedDateStr).toISOString().split("T")[0] :
-                new Date().toISOString().split("T")[0];
+
+            const cleanDate = getTodayIST();
 
             const formData = new FormData();
             formData.append("image", blob, "capture.jpg");
@@ -1135,9 +1132,7 @@
             }
         }
 
-        // =====================
-        // CALENDAR
-        // =====================
+
         function generateCalendar() {
             const grid = document.getElementById('calendar-grid');
             const now = new Date();
@@ -1174,9 +1169,7 @@
             autoloadSubjects();
         }
 
-        // =====================
-        // SUBJECTS
-        // =====================
+
         function autoloadSubjects() {
             const courseEl = document.querySelector('input[name="course"]:checked');
             const year = document.getElementById("year").value;
@@ -1234,13 +1227,11 @@
                 });
         }
 
-        // =====================
-        // INIT
-        // =====================
+
         setInterval(updateClock, 1000);
         updateClock();
         generateCalendar();
-        fetchFacultyName(); // FIX: replaces the old updateDateHeader()
+        fetchFacultyName();
         updateConsoleDate();
     </script>
 </body>

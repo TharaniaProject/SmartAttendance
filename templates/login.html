@@ -107,10 +107,9 @@
 
                 if (data.status === "success") {
 
-                    // store register number s user_id
                     localStorage.setItem("user_id", data.user_id);
 
-                    // 🔥 redirect based on role (FROM DATABASE)
+
                     if (data.role === "student") {
                         window.location.href = "/student";
                     } else if (data.role === "faculty") {
