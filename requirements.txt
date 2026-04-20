@@ -4,4 +4,4 @@ mysql-connector-python==8.4.0
 numpy==1.26.4
 opencv-python-headless==4.9.0.80
 deepface==0.0.99
-tensorflow==2.15.0
+tensorflow-cpu==2.10.0
