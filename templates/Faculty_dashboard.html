@@ -826,7 +826,7 @@
             resultBox.innerHTML = `<div class="mt-4 p-4 bg-blue-50 rounded-xl text-blue-700 font-bold">⏳ Processing attendance...</div>`;
 
             try {
-                const res = await fetch('http://127.0.0.1:5000/process_attendance', {
+                const res = await fetch('/process_attendance', {
                     method: "POST",
                     body: formData,
                     credentials: "include"
